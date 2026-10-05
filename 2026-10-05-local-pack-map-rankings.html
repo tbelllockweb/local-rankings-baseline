@@ -1,0 +1,772 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Local Pack and Map Rankings</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Markazi+Text:wght@500;600&family=Mulish:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: matches the DRA "Search Visibility Baseline" dashboard — navy numbered sidebar, gradient topbar, one section visible at a time. Light-only by design, as in the reference. */
+*,*::before,*::after{box-sizing:border-box}
+[hidden]{display:none!important}
+:root{
+  color-scheme:light;
+  --ground:#f4f7fa; --surface:#ffffff; --surface-2:#eef3f8; --surface-3:#e4ebf3;
+  --ink:#0d1826; --ink-2:#46556a; --ink-3:#7d8b9d; --line:#dbe3ed; --line-2:#c6d2e0;
+  --navy:#002145; --navy-2:#00335f; --blue:#1a56db; --blue-soft:#e8eefc;
+  --b1:#0f7a52; --b2:#1a56db; --b3:#eda100; --b4:#eb6834; --bn:#c6d2e0;
+  --warn-ink:#8a5104; --warn-bg:#fdf5e8; --warn-line:#e8cf9d;
+  --good:#0f7a52;
+  --f-display:"Markazi Text",Georgia,"Times New Roman",serif;
+  --f-body:"Mulish","Helvetica Neue",Arial,sans-serif;
+  --f-mono:"IBM Plex Mono","SFMono-Regular",Consolas,monospace;
+  --sb:248px;
+}
+body{margin:0;background:var(--ground);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased}
+h1,h2,h3{margin:0;text-wrap:balance}
+a{color:var(--blue)}
+button{font:inherit;cursor:pointer}
+:focus-visible{outline:2px solid var(--blue);outline-offset:2px;border-radius:3px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+.shell{display:flex;min-height:100vh}
+@media (min-width:861px){.shell{background:linear-gradient(to right,var(--navy) 0,var(--navy) var(--sb),var(--ground) var(--sb))}}
+.sidebar{width:var(--sb);flex:0 0 var(--sb);background:var(--navy);color:#dce6f2;position:sticky;top:0;height:100vh;display:flex;flex-direction:column;padding:26px 0 18px}
+.sb-brand{padding:0 22px 20px;border-bottom:1px solid rgba(255,255,255,.13)}
+.sb-logo{font-weight:800;font-size:12px;letter-spacing:.13em;text-transform:uppercase;color:#7fb0f5}
+.sb-client{font-family:var(--f-display);font-size:28px;line-height:1.1;font-weight:600;color:#fff;margin-top:6px}
+.sb-sub{font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:#8ba3bf;margin-top:5px}
+.sb-nav{list-style:none;margin:14px 0 0;padding:0;display:flex;flex-direction:column;gap:1px;flex:1}
+.sb-nav button{width:100%;text-align:left;background:none;border:0;border-left:3px solid transparent;color:#b9cade;padding:10px 22px;font-size:13.5px;font-weight:600;display:flex;align-items:center;gap:10px;transition:background .12s,color .12s}
+.sb-nav button:hover{background:rgba(255,255,255,.06);color:#fff}
+.sb-nav button[aria-current="true"]{background:rgba(26,86,219,.20);border-left-color:#4f8ff0;color:#fff}
+.sb-nav .idx{font-family:var(--f-mono);font-size:10px;color:#6d87a5;width:14px}
+.sb-nav button[aria-current="true"] .idx{color:#7fb0f5}
+.sb-foot{padding:14px 22px 0;border-top:1px solid rgba(255,255,255,.13);font-size:11px;color:#8ba3bf;line-height:1.5}
+.download-btn{position:absolute;top:26px;right:34px;background:#fff;color:var(--navy);border:0;padding:9px 16px;border-radius:7px;font-family:var(--f-body);font-size:12.5px;font-weight:700;cursor:pointer;box-shadow:0 1px 4px rgba(0,20,50,.28);display:inline-flex;align-items:center;gap:8px;transition:background .12s,transform .12s}
+.download-btn:hover{background:#e9f0fb}
+.download-btn:active{transform:translateY(1px)}
+.download-btn svg{width:14px;height:14px;flex:0 0 auto}
+.download-btn[disabled]{opacity:.6;cursor:default}
+.dl-status{position:absolute;top:64px;right:34px;font-family:var(--f-mono);font-size:11px;color:#b6cde8;text-align:right;max-width:260px}
+.topbar h1{padding-right:180px}
+.main{flex:1;min-width:0;display:flex;flex-direction:column}
+.topbar{position:relative;background:linear-gradient(112deg,var(--navy) 0%,var(--navy-2) 62%,#0a4a86 100%);color:#fff;padding:26px 34px 24px}
+.topbar h1{font-family:var(--f-display);font-size:34px;font-weight:600;letter-spacing:.005em}
+.topbar .meta{display:flex;flex-wrap:wrap;gap:8px 22px;margin-top:10px;font-size:12px;color:#b6cde8;font-family:var(--f-mono)}
+.topbar .meta b{color:#fff;font-weight:500}
+.content{padding:26px 34px 60px;max-width:1240px;min-width:0}
+.sec-head{margin-bottom:18px}
+.sec-head h2{font-family:var(--f-display);font-size:30px;font-weight:600;line-height:1.15}
+.sec-head p{margin:4px 0 0;color:var(--ink-2);max-width:66ch;font-size:14px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:20px 22px;margin-bottom:20px;min-width:0}
+.card > h3{font-size:13px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--ink-2)}
+.card > h3 + .card-note{margin-top:4px}
+.card-note{color:var(--ink-3);font-size:12.5px;margin:0 0 14px;max-width:74ch}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(158px,1fr));gap:14px;margin-bottom:20px}
+.tile{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:16px 18px;position:relative;overflow:hidden}
+.tile::before{content:"";position:absolute;inset:0 auto 0 0;width:3px;background:var(--tc,var(--blue))}
+.tile .lab{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3)}
+.tile .val{font-size:31px;font-weight:800;letter-spacing:-.02em;line-height:1.15;margin-top:6px;font-variant-numeric:tabular-nums}
+.tile .sub{font-size:12px;color:var(--ink-2);margin-top:3px}
+.flag{background:var(--warn-bg);border:1px solid var(--warn-line);border-left:3px solid #d79a2b;border-radius:8px;padding:13px 16px;margin-bottom:18px;display:flex;gap:12px;align-items:flex-start}
+.flag .fi{flex:0 0 auto;width:18px;height:18px;margin-top:2px}
+.flag .ft{font-size:13px;line-height:1.55;color:var(--warn-ink)}
+.flag .ft b{color:#6b3f03}
+.pill{display:inline-flex;align-items:center;justify-content:center;gap:5px;font-family:var(--f-mono);font-size:10.5px;font-weight:500;padding:2px 8px;border-radius:20px;border:1px solid var(--line-2);background:var(--surface-2);color:var(--ink-2);white-space:nowrap;min-width:34px}
+.pill.r1{border-color:#a9dcc4;background:#eefaf4;color:var(--good)}
+.pill.r2{border-color:#bcd0f7;background:var(--blue-soft);color:var(--blue)}
+.pill.r3{border-color:var(--warn-line);background:var(--warn-bg);color:var(--warn-ink)}
+.pill.r4{border-color:#f3c3ab;background:#fdf0ea;color:#a8431a}
+.pill.rn{color:var(--ink-3)}
+.controls{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;margin-bottom:16px}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:var(--surface)}
+.seg button{border:0;background:none;padding:7px 13px;font-size:12.5px;font-weight:600;color:var(--ink-2);border-right:1px solid var(--line)}
+.seg button:last-child{border-right:0}
+.seg button[aria-pressed="true"]{background:var(--blue);color:#fff}
+.field{display:inline-flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:6px 12px;max-width:100%}
+.field input,.field select{border:0;background:none;font:inherit;font-size:13px;color:var(--ink);outline:none;min-width:0;width:190px;max-width:100%}
+.field label{font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--ink-3)}
+.chart-wrap{position:relative;width:100%;overflow-x:auto}
+svg.chart{display:block;width:100%;min-width:560px;height:auto;font-family:var(--f-body)}
+.axis-txt{font-family:var(--f-mono);font-size:10.5px;fill:var(--ink-3)}
+.pt-label{font-size:11.5px;font-weight:700;font-family:var(--f-body)}
+.gridline{stroke:var(--line);stroke-width:1}
+.legend{display:flex;flex-wrap:wrap;gap:8px 18px;margin:0 0 12px;padding:0;list-style:none}
+.legend li{display:inline-flex;align-items:center;gap:7px;font-size:12.5px;font-weight:600;color:var(--ink-2)}
+.legend .sw{width:11px;height:11px;border-radius:3px;flex:0 0 auto}
+.tbl-scroll{overflow:auto;border:1px solid var(--line);border-radius:9px;background:var(--surface)}
+.tbl-scroll.tall{max-height:560px}
+table{border-collapse:collapse;width:100%;font-size:13px}
+th,td{padding:9px 13px;text-align:right;white-space:nowrap;border-bottom:1px solid var(--line)}
+th:first-child,td:first-child{text-align:left}
+thead th{position:sticky;top:0;background:var(--surface-2);font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-2);border-bottom:1px solid var(--line-2);z-index:2}
+tbody td{font-variant-numeric:tabular-nums;color:var(--ink)}
+tbody tr:last-child td{border-bottom:0}
+tbody tr:hover td{background:#f7fafd}
+tfoot td{font-weight:800;background:var(--surface-2);font-variant-numeric:tabular-nums;border-top:1px solid var(--line-2)}
+td.dim{color:var(--ink-3)}
+td.l{text-align:left}
+th.sortable{cursor:pointer;user-select:none}
+th.sortable:hover{color:var(--blue)}
+th .arr{opacity:.4;font-size:9px;margin-left:3px}
+th[aria-sort] .arr{opacity:1;color:var(--blue)}
+.loc-n{font-weight:700}
+.loc-s{font-size:11.5px;color:var(--ink-3)}
+.pth{font-family:var(--f-mono);font-size:12px;color:var(--ink);display:inline-block;max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;vertical-align:bottom}
+.minibar{display:inline-flex;width:100px;height:9px;border-radius:3px;overflow:hidden;background:var(--surface-3);vertical-align:middle}
+.minibar i{display:block;height:100%}
+.disclose{margin-top:12px}
+.disclose summary{font-size:12.5px;font-weight:700;color:var(--blue);cursor:pointer;list-style:none;display:inline-flex;align-items:center;gap:6px}
+.disclose summary::-webkit-details-marker{display:none}
+.disclose summary::before{content:"▸";font-size:10px;transition:transform .12s}
+.disclose[open] summary::before{transform:rotate(90deg)}
+.disclose > div{margin-top:12px}
+tr.xrow{cursor:pointer}
+tr.xrow td:first-child::before{content:"›";display:inline-block;width:14px;font-size:13px;font-weight:800;color:var(--blue)}
+tr.xrow[aria-expanded="true"] td:first-child::before{transform:rotate(90deg)}
+tr.drill > td{background:var(--surface-2);padding:14px 16px;white-space:normal}
+.drill-grid{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:16px}
+.drill-grid h4{margin:0 0 8px;font-size:11px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--ink-2)}
+.drill-grid table{font-size:12.5px}
+.drill-grid th,.drill-grid td{padding:7px 10px}
+.loclink{background:none;border:0;padding:0;color:var(--ink);font-weight:700;text-align:left;cursor:pointer}
+.loclink:hover{color:var(--blue);text-decoration:underline;text-underline-offset:2px}
+.locbar{display:flex;flex-wrap:wrap;gap:10px 12px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin-bottom:18px}
+.locbar .field{border-color:var(--line-2)}
+.locbar .field select{width:300px}
+.navbtn{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:7px 13px;font-size:12.5px;font-weight:700;color:var(--ink-2)}
+.navbtn:hover{color:var(--blue);border-color:var(--blue)}
+.locbar .pos{font-family:var(--f-mono);font-size:11.5px;color:var(--ink-3);margin-left:auto}
+.loc-eyebrow{font-size:11px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:var(--blue);margin-bottom:2px}
+.facts{display:flex;flex-wrap:wrap;gap:6px 18px;margin-top:8px;font-family:var(--f-mono);font-size:12px;color:var(--ink-3)}
+.facts b{color:var(--ink);font-weight:500}
+tr.cur td{background:var(--blue-soft)!important}
+tr.peer{cursor:pointer}
+svg .hit{cursor:pointer}
+#ch-pack svg *:not(.hit),#ch-grid svg *:not(.hit){pointer-events:none}
+#ch-pack svg .hit:hover,#ch-grid svg .hit:hover{fill:rgba(26,86,219,.06)}
+.pill.err{border-color:#f0b4ab;background:#fdeeec;color:#b03a2e;font-weight:600}
+.pill.wrn{border-color:var(--warn-line);background:var(--warn-bg);color:var(--warn-ink);font-weight:600}
+.tflag{margin-left:6px;vertical-align:1px;font-size:9.5px;padding:1px 6px;min-width:0}
+.flag.err{background:#fdeeec;border-color:#f0b4ab;border-left-color:#b03a2e}
+.flag.err .ft{color:#7a2219}.flag.err .ft b{color:#5c160f}
+.flag .ft a,.flag .ft button.inl{color:inherit;font-weight:800;background:none;border:0;padding:0;text-decoration:underline;text-underline-offset:2px;cursor:pointer;font-size:inherit}
+tr.sev-crit td:first-child{box-shadow:inset 3px 0 0 #b03a2e}
+tr.sev-high td:first-child{box-shadow:inset 3px 0 0 #d9692b}
+tr.sev-med td:first-child,tr.sev-low td:first-child{box-shadow:inset 3px 0 0 #d79a2b}
+td.wrap{white-space:normal;text-align:left;min-width:220px;max-width:340px;font-size:12.5px;line-height:1.5;color:var(--ink-2)}
+.toggle{display:inline-flex;align-items:center;gap:9px;font-size:13px;font-weight:600;color:var(--ink-2);background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:7px 13px;cursor:pointer}
+.toggle input{appearance:none;width:34px;height:19px;border-radius:12px;background:var(--surface-3);position:relative;transition:background .15s;margin:0;cursor:pointer}
+.toggle input::after{content:"";position:absolute;top:2px;left:2px;width:15px;height:15px;border-radius:50%;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.28);transition:transform .15s}
+.toggle input:checked{background:#b03a2e}
+.toggle input:checked::after{transform:translateX(15px)}
+.nav-badge{margin-left:auto;background:#b03a2e;color:#fff;font-family:var(--f-mono);font-size:10px;border-radius:10px;padding:0 7px;line-height:17px}
+.qlist{display:grid;gap:12px}
+.q{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:16px 18px;display:grid;gap:8px;border-left:3px solid #1a56db}
+.q.done{border-left-color:var(--good);background:#fbfdfc}
+.q-top{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center}
+.q-num{font-family:var(--f-mono);font-size:11px;color:var(--ink-3)}
+.q h4{margin:0;font-size:15.5px;font-weight:800;line-height:1.35;letter-spacing:-.005em;text-wrap:pretty}
+.q .ctx{margin:0;font-size:13px;color:var(--ink-2);max-width:86ch;line-height:1.55}
+.q .chips{display:flex;flex-wrap:wrap;gap:6px}
+.q .chips .loclink{font-size:12px;font-weight:700;background:var(--surface-2);border:1px solid var(--line);border-radius:20px;padding:2px 10px}
+.q .ans{display:grid;gap:8px;margin-top:4px}
+.q textarea{font:inherit;font-size:13.5px;color:var(--ink);border:1px solid var(--line-2);border-radius:8px;padding:9px 11px;min-height:64px;resize:vertical;background:var(--surface);width:100%}
+.q .answered{background:#eefaf4;border:1px solid #a9dcc4;border-radius:8px;padding:10px 12px;font-size:13.5px;color:var(--ink);white-space:pre-wrap}
+.q .who{font-family:var(--f-mono);font-size:11px;color:var(--ink-3)}
+.q .row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.btn{background:var(--blue);color:#fff;border:0;border-radius:7px;padding:7px 14px;font-size:12.5px;font-weight:700}
+.btn:hover{background:#1546b5}
+.btn.ghost{background:var(--surface);color:var(--ink-2);border:1px solid var(--line)}
+.btn.ghost:hover{color:var(--blue);border-color:var(--blue)}
+.btn[disabled]{opacity:.55;cursor:default}
+.q-status{font-size:12px;color:var(--ink-3)}
+.q-empty{background:var(--surface);border:1px dashed var(--line-2);border-radius:10px;padding:22px;color:var(--ink-2);font-size:13.5px}
+.addq{display:grid;gap:10px}
+.addq .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media (max-width:700px){.addq .grid2{grid-template-columns:1fr}}
+.addq input,.addq select,.addq textarea{font:inherit;font-size:13.5px;color:var(--ink);border:1px solid var(--line-2);border-radius:8px;padding:8px 10px;background:var(--surface);width:100%;min-width:0}
+.addq label{display:grid;gap:4px;font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--ink-3)}
+.notes{display:grid;gap:14px}
+.note{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:18px 20px;border-left:3px solid var(--line-2)}
+.note.warn{border-left-color:#d79a2b;background:var(--warn-bg);border-color:var(--warn-line)}
+.note h4{margin:0 0 6px;font-size:15px;font-weight:800;letter-spacing:-.01em}
+.note p{margin:0 0 8px;font-size:13.5px;color:var(--ink-2);line-height:1.6;max-width:82ch}
+.note p:last-child{margin-bottom:0}
+.note.warn h4{color:#6b3f03} .note.warn p{color:var(--warn-ink)}
+.note .src{font-family:var(--f-mono);font-size:11px;color:var(--ink-3);margin-top:9px;display:block}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.two > *{min-width:0}
+@media (max-width:1080px){.two,.drill-grid{grid-template-columns:1fr}}
+@media (max-width:860px){
+  .shell{flex-direction:column}
+  .sidebar{width:100%;flex:none;height:auto;position:static;padding:18px 0 10px}
+  .sb-nav{flex-direction:row;overflow-x:auto;gap:0;padding-bottom:4px}
+  .sb-nav button{white-space:nowrap;border-left:0;border-bottom:3px solid transparent;padding:9px 14px}
+  .sb-nav button[aria-current="true"]{border-left:0;border-bottom-color:#4f8ff0}
+  .sb-foot{display:none}
+  .content,.topbar{padding-left:18px;padding-right:18px}
+  .topbar h1{font-size:27px;padding-right:0}
+  .download-btn{position:static;margin-top:14px}
+  .dl-status{position:static;text-align:left;margin-top:6px;max-width:none}
+}
+</style>
+
+<div class="shell">
+  <nav class="sidebar" aria-label="Dashboard sections">
+    <div class="sb-brand">
+      <div class="sb-logo">Digital Reach</div>
+      <div class="sb-client" id="sb-client">All Clients</div>
+      <div class="sb-sub">Local Rankings Baseline</div>
+    </div>
+    <ul class="sb-nav" id="nav">
+      <li><button data-sec="overview" aria-current="true"><span class="idx">01</span>Overview</button></li>
+      <li><button data-sec="errors"><span class="idx">02</span>Listing Issues<span class="nav-badge" id="nav-err"></span></button></li>
+      <li><button data-sec="questions"><span class="idx">03</span>Open Questions<span class="nav-badge" id="nav-q" style="background:#1a56db" hidden></span></button></li>
+      <li><button data-sec="location"><span class="idx">04</span>Location Detail</button></li>
+      <li><button data-sec="pack"><span class="idx">05</span>Local Pack</button></li>
+      <li><button data-sec="map"><span class="idx">06</span>Map Rankings</button></li>
+      <li><button data-sec="grid"><span class="idx">07</span>Local Search Grid</button></li>
+      <li><button data-sec="keywords"><span class="idx">08</span>Keywords</button></li>
+      <li><button data-sec="notes"><span class="idx">09</span>Reading This Data</button></li>
+    </ul>
+    <div class="sb-foot">BrightLocal: Rank Tracker &amp; Local Search Grid<br><span id="sb-count">40 locations, 6 clients</span><br>Prepared 5 Oct 2026</div>
+  </nav>
+
+  <div class="main">
+    <header class="topbar">
+      <h1>Local Pack and Map Rankings<br>October 2026 Baseline</h1>
+      <button class="download-btn" id="dl-btn" type="button" hidden><svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 2v8m0 0L4.5 6.5M8 10l3.5-3.5M2.5 13.5h11" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg><span id="dl-label">Download Excel</span></button>
+      <div class="dl-status" id="dl-status" role="status"></div>
+      <div class="meta">
+        <span>Locations <b id="m-locs">40</b></span>
+        <span>Rank Tracker <b>3 Oct 2026</b></span>
+        <span>Local Search Grid <b>2 Oct 2026</b></span>
+        <span>Source <b>BrightLocal</b></span>
+        <span>Prepared <b>5 Oct 2026</b></span>
+      </div>
+    </header>
+
+    <div class="content">
+      <div class="controls">
+        <div class="field"><label for="f-client">Client</label><select id="f-client"><option value="">All clients</option></select></div>
+        <div class="field"><label for="f-q">Search</label><input id="f-q" type="search" placeholder="City or keyword"></div>
+      </div>
+
+      <section id="sec-overview">
+        <div class="sec-head">
+          <h2 id="h-overview"></h2>
+          <p id="p-overview"></p>
+        </div>
+        <div class="flag" role="note">
+          <svg class="fi" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M10 2.5 18 17H2L10 2.5Z" stroke="#d79a2b" stroke-width="1.6" fill="#fdf5e8"/><path d="M10 8v4" stroke="#8a5104" stroke-width="1.6" stroke-linecap="round"/><circle cx="10" cy="14.3" r=".9" fill="#8a5104"/></svg>
+          <div class="ft"><b>Citations are left out of this week's baseline.</b> The 2 October Citation Tracker scans came back empty for every location, including Google and Yelp. A test re-run on Quincy on 5 October found 10 of 38 key citations, so the problem was the first scan, not the listings. Citations return after the scheduled run on Friday 9 October.</div>
+        </div>
+        <div class="flag err" role="note" id="ov-err"></div>
+        <div class="tiles" id="t-overview"></div>
+        <div class="card">
+          <h3>Where tracked keywords sit on the map</h3>
+          <p class="card-note" id="n-bands"></p>
+          <ul class="legend" id="lg-bands"></ul>
+          <div class="chart-wrap" id="ch-bands"></div>
+        </div>
+        <div class="card">
+          <h3>Clients compared</h3>
+          <p class="card-note">Local Pack coverage is the share of each client's tracked keywords where a location appears in Google's three-business pack. Select a client name to filter the whole dashboard.</p>
+          <div class="tbl-scroll"><table id="tb-clients"></table></div>
+        </div>
+      </section>
+
+      <section id="sec-errors" hidden>
+        <div class="sec-head"><h2 id="h-err"></h2><p id="p-err"></p></div>
+        <div class="tiles" id="t-err"></div>
+        <div class="card">
+          <h3>Locations to fix · confirmed 5 Oct 2026</h3>
+          <p class="card-note">Red: Google profile not verified, so nothing can be tracked. Orange: duplicate or competing listings that hold rankings back. Amber: smaller listing checks. Every location stays in the dashboard figures.</p>
+          <div class="tbl-scroll"><table id="tb-err"></table></div>
+        </div>
+      </section>
+
+      <section id="sec-questions" hidden>
+        <div class="sec-head"><h2 id="h-q">Open questions</h2><p id="p-q">Decisions and confirmations needed from the DRA team and clients before the first monthly comparison. Answers save to this dashboard for everyone who can edit it.</p></div>
+        <div class="controls">
+          <div class="seg" id="seg-q">
+            <button aria-pressed="true" data-f="open">Open</button>
+            <button aria-pressed="false" data-f="answered">Answered</button>
+            <button aria-pressed="false" data-f="all">All</button>
+          </div>
+          <div class="field"><label for="f-qcat">Topic</label><select id="f-qcat"><option value="">All topics</option></select></div>
+        </div>
+        <div class="qlist" id="qlist"><div class="q-empty">Loading questions…</div></div>
+        <details class="disclose card" id="addq-wrap" style="margin-top:20px" hidden>
+          <summary>Add a question</summary>
+          <form class="addq" id="addq">
+            <label for="nq-text">Question<input id="nq-text" required maxlength="300" placeholder="What needs deciding or confirming?"></label>
+            <label for="nq-ctx">Context<textarea id="nq-ctx" rows="2" maxlength="800" placeholder="What prompted it, and what it affects"></textarea></label>
+            <div class="grid2">
+              <label for="nq-cat">Topic<select id="nq-cat"></select></label>
+              <label for="nq-loc">Location<select id="nq-loc"><option value="">All locations</option></select></label>
+            </div>
+            <div class="row"><button class="btn" type="submit">Add question</button><span class="q-status" id="nq-status"></span></div>
+          </form>
+        </details>
+      </section>
+
+      <section id="sec-location" hidden>
+        <div class="locbar">
+          <div class="field"><label for="f-loc">Location</label><select id="f-loc"></select></div>
+          <button class="navbtn" id="loc-prev" type="button">‹ Previous</button>
+          <button class="navbtn" id="loc-next" type="button">Next ›</button>
+          <span class="pos" id="loc-pos"></span>
+        </div>
+        <div class="sec-head">
+          <div class="loc-eyebrow" id="e-loc"></div>
+          <h2 id="h-loc"></h2>
+          <p id="p-loc"></p>
+          <div class="facts" id="f-facts"></div>
+        </div>
+        <div id="loc-err"></div>
+        <div class="tiles" id="t-loc"></div>
+        <div class="card">
+          <h3>Keyword rankings</h3>
+          <p class="card-note">Each tracked keyword, best to worst on the map. The dot is the Local Finder (map) position and the shaded band is ranks 1–3. The Pack column shows the listing's Local Pack position when it appears. The scale is logarithmic so the top positions get the most room.</p>
+          <ul class="legend" id="lg-loc"></ul>
+          <div class="chart-wrap" id="ch-loc"></div>
+          <details class="disclose"><summary>View the numbers</summary><div class="tbl-scroll"><table id="tb-loc-kw"></table></div></details>
+        </div>
+        <div class="two">
+          <div class="card">
+            <h3>Local Search Grid</h3>
+            <p class="card-note">Latest grid scan per keyword, 2 October 2026. Bars split the grid points by the rank the listing holds at each one.</p>
+            <ul class="legend"><li><span class="sw" style="background:#0f7a52"></span>Rank 1–3</li><li><span class="sw" style="background:#1a56db"></span>Rank 4–10</li><li><span class="sw" style="background:#c6d2e0"></span>11+ or not ranking</li></ul>
+            <div class="chart-wrap" id="ch-loc-grid"></div>
+          </div>
+          <div class="card">
+            <h3 id="h-peers">Against the client's other locations</h3>
+            <p class="card-note">Select a row to open that location.</p>
+            <div class="tbl-scroll"><table id="tb-loc-peers"></table></div>
+          </div>
+        </div>
+      </section>
+
+      <section id="sec-pack" hidden>
+        <div class="sec-head"><h2 id="h-pack"></h2><p id="p-pack"></p></div>
+        <div class="tiles" id="t-pack"></div>
+        <div class="card">
+          <h3>Local Pack coverage by location</h3>
+          <p class="card-note">Share of each location's Rank Tracker keywords that return the listing in the Local Pack. Labels show keywords in the pack out of keywords tracked.</p>
+          <div class="chart-wrap" id="ch-pack"></div>
+        </div>
+      </section>
+
+      <section id="sec-map" hidden>
+        <div class="sec-head"><h2 id="h-map"></h2><p id="p-map"></p></div>
+        <div class="card">
+          <h3>Map rank by location</h3>
+          <p class="card-note">Each row splits a location's tracked keywords by Local Finder position. Select a location to open its full detail page.</p>
+          <ul class="legend" id="lg-map"></ul>
+          <div class="tbl-scroll tall"><table id="tb-map"></table></div>
+        </div>
+      </section>
+
+      <section id="sec-grid" hidden>
+        <div class="sec-head"><h2 id="h-grid"></h2><p id="p-grid"></p></div>
+        <div class="tiles" id="t-grid"></div>
+        <div class="card">
+          <h3>Grid average map rank by location</h3>
+          <p class="card-note">Average rank across all grid points and keywords in the latest scan. Lower is better. Locations not ranking at any grid point are listed below the chart.</p>
+          <div class="chart-wrap" id="ch-grid"></div>
+          <p class="card-note" id="n-grid-nr" style="margin:10px 0 0"></p>
+          <details class="disclose"><summary>View every grid keyword</summary><div class="tbl-scroll tall"><table id="tb-grid"></table></div></details>
+        </div>
+      </section>
+
+      <section id="sec-keywords" hidden>
+        <div class="sec-head"><h2 id="h-kw"></h2><p id="p-kw"></p></div>
+        <div class="controls">
+          <div class="seg" id="seg-kw">
+            <button aria-pressed="true" data-f="all">All</button>
+            <button aria-pressed="false" data-f="pack">In Local Pack</button>
+            <button aria-pressed="false" data-f="top3">Map top 3</button>
+            <button aria-pressed="false" data-f="nr">Not in top 50</button>
+          </div>
+        </div>
+        <div class="tbl-scroll tall"><table id="tb-kw"></table></div>
+      </section>
+
+      <section id="sec-notes" hidden>
+        <div class="sec-head"><h2>Reading this data</h2><p>What each figure measures, where it comes from, and the gaps to close before the first monthly comparison.</p></div>
+        <div class="notes">
+          <div class="note"><h4>Local Pack and map rank</h4><p>From BrightLocal Rank Tracker, run 3 October 2026 at a search depth of 50. "In the Local Pack" means the listing appeared in Google's three-business map pack for that keyword. Map rank is the listing's position in the Local Finder (the full map list).</p><span class="src">BrightLocal · Rank Tracker · Google US</span></div>
+          <div class="note"><h4>Local Search Grid</h4><p>The latest grid scan per keyword, run 2 October 2026. Each scan checks rank at 25 or 49 points around the location. Grid average is the mean rank across points; points outside the top 20 count against the average. "Grid points in the top 3" is the share of all points where the listing ranks 1 to 3.</p><span class="src">BrightLocal · Local Search Grid</span></div>
+          <div class="note"><h4>Averages</h4><p>Average map rank only counts keywords where the listing ranks in the top 50, so read it alongside the count of keywords not ranking. Client and portfolio figures pool every keyword rather than averaging location averages.</p></div>
+          <div class="note warn"><h4>Citations excluded this week</h4><p>Citation Tracker scans from 2 October returned no citations for any location. A re-run on Quincy found 10 of 38 key citations (score 28/100) and flagged a wrong suite number on Data Axle and YellowPages. Citations rejoin the baseline after the 9 October scheduled run.</p></div>
+          <div class="note warn"><h4>Keyword sets differ by location</h4><p>Locations track between 3 and 11 Rank Tracker keywords and 2 to 5 grid keywords, with different mixes of city and "near me" terms. Compare locations on coverage and averages rather than raw counts, or standardize the sets before the first monthly comparison.</p></div>
+        </div>
+      </section>
+    </div>
+  </div>
+</div>
+
+<script>
+const DATA = [{"id":4168309,"client":"Addus","name":"Addus HomeCare","city":"Berwyn","st":"IL","ref":"ADDUSHOMECAR-60402","rating":2.5,"reviews":21.0,"gridAvg":17.2,"kw":[["berwyn home care","<10",null,2.0,2.0],["berwyn senior care","<10",null,null,null],["home care berwyn","<10",null,null,2.0],["in home care berwyn il","<10",null,2.0,2.0],["home care","10",null,null,6.0],["home care agency near me","10",null,null,13.0],["home care near me","10",null,null,6.0],["in home care near me","10",null,null,15.0]],"grid":[["home care",15.7,2,5,18],["in home care",18.7,1,2,22]]},{"id":4168296,"client":"Addus","name":"Addus HomeCare","city":"Charleston","st":"IL","ref":"ADDUSHOMECAR-61920","rating":2.7,"reviews":11.0,"gridAvg":12.3,"kw":[["home care charleston il","<10",null,2.0,2.0],["home care mattoon il","<10",null,null,null],["home care services charleston","<10",null,1.0,1.0],["in home care charleston il","<10",null,1.0,4.0],["home care","10",null,1.0,1.0],["home care agency near me","10",null,2.0,4.0],["home care near me","10",null,1.0,1.0],["in home care near me","10",null,2.0,2.0]],"grid":[["home care",10.9,10,16,23],["in home care",12.6,7,17,25],["home care services",13.4,7,12,30]]},{"id":4168304,"client":"Addus","name":"Addus HomeCare","city":"Chicago","st":"IL","ref":"ADDUSHOMECAR-60643","rating":2.3,"reviews":91.0,"gridAvg":20.8,"kw":[["home care chicago","260",null,null,22.0],["in home care chicago il","260",null,null,24.0],["home care services chicago","40",null,null,null]],"grid":[["home care",20.6,0,1,48],["home care agency",20.8,0,0,49],["in home care",20.9,0,0,49],["home care services",20.9,0,0,49]]},{"id":4168317,"client":"Addus","name":"Addus HomeCare","city":"Decatur","st":"IL","ref":"ADDUSHOMECAR-62526","rating":2.9,"reviews":12.0,"gridAvg":4.2,"kw":[["in home care decatur","<10",null,null,6.0],["home care decatur il","40",null,null,4.0],["home care","20",null,null,4.0],["home care agency near me","10",null,null,6.0],["home care decatur","10",null,null,4.0],["home care near me","10",null,null,5.0],["in home care decatur il","10",null,null,6.0],["in home care near me","10",null,null,5.0]],"grid":[["home care",2.8,24,1,0],["in home care",5.5,1,24,0]]},{"id":4168285,"client":"Addus","name":"Addus HomeCare","city":"East Peoria","st":"IL","ref":"ADDUSHOMECAR-61611","rating":2.5,"reviews":21.0,"gridAvg":12.9,"kw":[["home care","70",null,null,4.0],["home care agency near me","10",null,null,12.0],["home care near me","10",null,null,9.0],["home care peoria","10",null,null,8.0],["home care peoria il","10",null,null,null],["home care services peoria","10",null,null,13.0],["in home care near me","10",null,null,10.0],["in home care peoria","10",null,null,13.0],["in home care peoria il","10",null,null,11.0]],"grid":[["home care",9.7,1,27,21],["in home care",14.3,1,11,37],["home care services",14.6,1,13,35]]},{"id":4168514,"client":"Addus","name":"Addus HomeCare","city":"Homewood","st":"IL","ref":"ADDUSHOMECAR-60430","rating":3.1,"reviews":38.0,"gridAvg":7.6,"kw":[["home care homewood il","<10",null,1.0,1.0],["homewood senior care","<10",null,null,null],["home care homewood","10",null,1.0,1.0]],"grid":[["home care homewood il",1.1,25,0,0],["homewood senior care",20.6,0,0,25],["home care homewood",1.2,25,0,0]]},{"id":4168307,"client":"Addus","name":"Addus HomeCare","city":"Litchfield","st":"IL","ref":"ADDUSHOMECAR-62056","rating":1.6,"reviews":8.0,"gridAvg":1.7,"kw":[["home care agency near me","<10",null,3.0,3.0],["home care litchfield il","<10",null,2.0,3.0],["home care services litchfield","<10",null,3.0,3.0],["in home care litchfield il","<10",null,2.0,3.0],["senior care litchfield il","<10",null,null,10.0],["home care near me","40",null,3.0,3.0],["home care","10",null,1.0,1.0],["in home care near me","10",null,3.0,3.0]],"grid":[["home care",1.5,24,1,0],["in home care",1.8,25,0,0]]},{"id":4168303,"client":"Addus","name":"Addus HomeCare","city":"Marion","st":"IL","ref":"ADDUSHOMECAR-62959","rating":1.9,"reviews":15.0,"gridAvg":13.4,"kw":[["elderly care marion il","<10",null,null,null],["home care services marion","<10",null,null,9.0],["in home care marion","<10",null,null,9.0],["marion senior care","<10",null,null,null],["home care","10",null,null,5.0],["home care agency near me","10",null,null,11.0],["home care marion","10",null,null,6.0],["home care near me","10",null,null,11.0],["in home care near me","10",null,null,10.0]],"grid":[["home care",7.8,6,32,11],["in home care",11.9,0,27,22],["home care services",12.8,0,24,25],["senior care",null,0,0,49]]},{"id":4168506,"client":"Addus","name":"Addus HomeCare","city":"Modesto","st":"CA","ref":"ADDUSHOMECAR-95355","rating":3.3,"reviews":7.0,"gridAvg":19.4,"kw":[["caregivers modesto","<10",null,null,null],["home care agency modesto","<10",null,null,32.0],["home care","90",null,null,19.0],["home care modesto","50",null,null,32.0],["in home care modesto","30",null,null,33.0],["home care near me","20",null,null,29.0],["home care agency near me","10",null,null,33.0],["home care services modesto","10",null,null,33.0],["in home care near me","10",null,null,27.0],["senior home care modesto","10",null,null,null]],"grid":[["home care modesto",18.1,0,1,24],["in home care modesto ca",20.7,0,0,25],["home care services modesto",19.4,0,0,25]]},{"id":4168306,"client":"Addus","name":"Addus HomeCare","city":"Mt. Vernon","st":"IL","ref":"ADDUSHOMECAR-62864","rating":1.0,"reviews":3.0,"gridAvg":2.7,"kw":[["home care agency mount vernon","<10",null,null,5.0],["home care mount vernon","<10",null,null,3.0],["home care services mount vernon il","<10",null,null,5.0],["in home care mount vernon","<10",null,null,4.0],["home care","10",null,3.0,3.0],["home care agency near me","10",null,null,4.0],["home care near me","10",null,null,5.0],["in home care near me","10",null,null,5.0]],"grid":[["home care",2.0,24,1,0],["in home care",3.3,17,8,0]]},{"id":4168522,"client":"Addus","name":"Addus HomeCare","city":"Niles","st":"IL","ref":"ADDUSHOMECAR-60714","rating":3.9,"reviews":21.0,"gridAvg":20.1,"kw":[["elderly care niles il","<10",null,null,16.0],["home care niles","<10",null,3.0,3.0],["home care services niles il","<10",null,null,8.0],["in home care niles il","<10",null,null,4.0],["home care near me","20",null,null,29.0],["home care","10",null,null,24.0],["home care agency near me","10",null,null,null],["in home care near me","10",null,null,31.0],["senior care niles il","10",null,null,null]],"grid":[["home care",17.9,0,6,43],["in home care",20.8,0,0,49],["home care services",20.4,0,1,48],["senior care",null,0,0,49],["home care agency",20.3,0,1,48]]},{"id":4168293,"client":"Addus","name":"Addus HomeCare","city":"Quincy","st":"IL","ref":"ADDUSHOMECAR-62301","rating":3.5,"reviews":4.0,"gridAvg":9.1,"kw":[["caregivers quincy il","<10",null,null,4.0],["home care services quincy","<10",null,3.0,3.0],["in home care quincy","<10",null,3.0,3.0],["home care quincy il","20",null,null,4.0],["home care","10",null,3.0,3.0],["home care agency near me","10",null,3.0,3.0],["home care near me","10",null,3.0,3.0],["home care quincy","10",null,3.0,3.0],["in home care near me","10",null,3.0,3.0]],"grid":[["home care",7.1,14,25,10],["in home care",11.4,6,21,22],["home care services",8.9,10,23,16]]},{"id":4168295,"client":"Addus","name":"Addus HomeCare","city":"Rockford","st":"IL","ref":"ADDUSHOMECAR-61107","rating":2.0,"reviews":18.0,"gridAvg":15.7,"kw":[["home care rockford","90",null,null,13.0],["home care rockford il","90",null,null,13.0],["home care services rockford","90",null,null,12.0],["home care","40",null,null,13.0],["home care near me","40",null,null,16.0],["home care agency near me","30",null,null,16.0],["in home care rockford il","20",null,null,16.0],["in home care near me","10",null,null,17.0],["senior care rockford il","10",null,null,null]],"grid":[["home care",11.2,2,24,23],["in home care",14.6,0,13,36],["home care services",15.8,0,4,45],["senior care",null,0,0,49]]},{"id":4168291,"client":"Addus","name":"Addus HomeCare","city":"Springfield","st":"IL","ref":"ADDUSHOMECAR-62711","rating":2.1,"reviews":22.0,"gridAvg":10.7,"kw":[["personal care services springfield","<10",null,null,null],["home care","170",null,null,9.0],["home care services springfield il","140",null,null,20.0],["home care springfield il","140",null,null,15.0],["home care near me","50",null,null,10.0],["home care agency near me","20",null,null,19.0],["in home care near me","10",null,null,15.0],["in home care springfield","10",null,null,16.0]],"grid":[["home care",5.1,9,40,0],["in home care",9.3,0,33,16],["home care services",9.7,1,28,20],["senior care",null,0,0,49],["home care agency",8.6,0,49,0]]},{"id":4168520,"client":"Addus","name":"Addus HomeCare","city":"Swansea","st":"IL","ref":"ADDUSHOMECAR-62226","rating":2.5,"reviews":11.0,"gridAvg":11.7,"kw":[["swansea home care","<10",null,null,7.0],["home care","10",null,null,7.0],["home care agency near me","10",null,null,11.0],["home care belleville il","10",null,null,null],["home care near me","10",null,null,9.0],["home care services swansea","10",null,null,9.0],["home care swansea","10",null,null,4.0],["in home care near me","10",null,null,11.0]],"grid":[["home care",6.5,7,38,4],["in home care",12.0,0,21,28],["home care services",10.2,0,31,18],["senior care",20.6,0,0,49],["home care agency",9.1,0,35,14]]},{"id":4168523,"client":"Addus","name":"Addus HomeCare","city":"Warrenville","st":"IL","ref":"ADDUSHOMECAR-60555","rating":2.6,"reviews":7.0,"gridAvg":20.9,"kw":[["home care agency wheaton","<10",null,null,null],["home care warrenville il","<10",null,2.0,4.0],["home care wheaton il","<10",null,null,19.0],["in home care wheaton il","<10",null,null,null],["senior care wheaton il","<10",null,null,null],["home care","10",null,null,33.0],["home care agency near me","10",null,null,null],["home care near me","10",null,null,26.0],["in home care near me","10",null,null,29.0]],"grid":[["home care",20.4,0,0,49],["in home care",null,0,0,49],["home care services",null,0,0,49],["senior care",null,0,0,49],["home care agency",null,0,0,49]]},{"id":4168524,"client":"Addus","name":"Addus HomeCare","city":"Wintersville","st":"OH","ref":"ADDUSHOMECAR-43953","rating":3.0,"reviews":8.0,"gridAvg":4.0,"kw":[["caregivers wintersville","<10",null,null,6.0],["caregivers wintersville oh","<10",null,null,4.0],["home care steubenville ohio","<10",null,3.0,3.0],["home care wintersville","<10",null,null,5.0],["home care wintersville oh","<10",null,null,4.0],["in home care wintersville","<10",null,null,5.0],["in home care wintersville oh","<10",null,null,7.0],["addus homecare wintersville","10",2.0,null,1.0]],"grid":[["home care wintersville oh",3.4,16,9,0],["in home care wintersville oh",5.0,0,25,0],["home care services wintersville",3.6,9,16,0]]},{"id":4168510,"client":"Arcadia Home Care & Staffing","name":"Arcadia Home Care & Staffing","city":"Akron","st":"OH","ref":"ARCADIAHOMEC-44333","rating":3.7,"reviews":23.0,"gridAvg":13.0,"kw":[["home care services akron","<10",null,null,null],["in home care akron oh","<10",null,null,null],["home care akron","90",null,null,null]],"grid":[["home care akron",10.4,6,3,16],["in home care akron oh",17.5,0,3,22],["home care services akron",11.0,1,14,10]]},{"id":4168515,"client":"Arcadia Home Care & Staffing","name":"Arcadia Home Care & Staffing","city":"Campbell","st":"CA","ref":"ARCADIAHOMEC-95008-2376","rating":5.0,"reviews":10.0,"gridAvg":4.7,"kw":[["home care campbell ca","<10",null,null,11.0],["home care services campbell","<10",null,null,12.0],["in home care campbell","<10",null,null,9.0]],"grid":[["home care campbell ca",4.8,0,25,0],["in home care campbell",5.6,3,21,1],["home care services campbell",3.7,16,9,0]]},{"id":4168505,"client":"Arcadia Home Care & Staffing","name":"Arcadia Home Care & Staffing","city":"Daly City","st":"CA","ref":"ARCADIAHOMEC-94015-2668","rating":4.8,"reviews":24.0,"gridAvg":10.0,"kw":[["home care services daly city","<10",40.0,null,7.0],["senior home care daly city","<10",null,null,10.0],["home care","10",null,null,12.0],["home care agency near me","10",null,null,9.0],["home care daly city","10",19.0,null,11.0],["home care near me","10",24.0,null,12.0],["in home care daly city","10",null,null,10.0],["in home care near me","10",22.0,null,10.0]],"grid":[["home care",7.8,12,24,13],["in home care",7.6,7,32,10],["home care services",9.7,1,33,15],["senior care",null,0,0,49],["home care agency",3.7,29,18,2]]},{"id":4168525,"client":"Arcadia Home Care & Staffing","name":"Arcadia Home Care & Staffing","city":"Independence","st":"OH","ref":"ARCADIAHOMEC-44131","rating":5.0,"reviews":5.0,"gridAvg":null,"kw":[["home care independence oh","<10",null,null,null],["home care services independence oh","<10",null,null,null],["in home care independence ohio","<10",null,null,null]],"grid":[["home care independence oh",null,0,0,25],["in home care independence ohio",null,0,0,25],["home care services independence oh",null,0,0,25]]},{"id":4168513,"client":"Arcadia Home Care & Staffing","name":"Arcadia Home Care & Staffing","city":"Lima","st":"OH","ref":"ARCADIAHOMEC-45801","rating":5.0,"reviews":2.0,"gridAvg":12.7,"kw":[["home care lima ohio","<10",null,null,null],["home care services lima oh","<10",null,null,9.0],["in home care lima oh","<10",null,null,7.0]],"grid":[["home care lima ohio",null,0,0,25],["in home care lima oh",9.8,0,18,7],["home care services lima oh",7.2,0,23,2]]},{"id":4168508,"client":"Arcadia Home Care & Staffing","name":"Arcadia Home Care & Staffing","city":"Livermore","st":"CA","ref":"ARCADIAHOMEC-94551-6319","rating":4.7,"reviews":27.0,"gridAvg":3.5,"kw":[["home care services livermore","<10",null,3.0,4.0],["in-home care services for seniors livermore","<10",null,null,4.0],["livermore home care services","<10",null,null,2.0]],"grid":[["home care services livermore",4.0,4,21,0],["livermore home care services",3.4,8,17,0],["in-home care services for seniors livermore",3.0,21,4,0]]},{"id":4168503,"client":"Arcadia Home Care & Staffing","name":"Arcadia Home Care & Staffing","city":"Monterey","st":"CA","ref":"ARCADIAHOMEC-93940-3054","rating":4.0,"reviews":16.0,"gridAvg":8.1,"kw":[["home care service monterey ca","<10",null,null,4.0],["home care service monterey county ca","<10",null,null,7.0],["home care services monterey ca","<10",null,null,8.0],["home care","10",null,3.0,4.0],["home care agency near me","10",null,null,9.0],["home care near me","10",6.0,null,5.0],["in home care monterey","10",7.0,null,5.0],["in home care near me","10",null,null,8.0]],"grid":[["home care",3.9,29,20,0],["in home care",5.7,10,35,4],["home care services",6.2,12,29,8],["senior care",20.3,0,1,48],["home care agency",4.6,21,27,1]]},{"id":4168518,"client":"Arcadia Home Care & Staffing","name":"Arcadia Home Care & Staffing","city":"Oakland","st":"CA","ref":"ARCADIAHOMEC-94612-2605","rating":3.4,"reviews":5.0,"gridAvg":15.3,"kw":[["in home care services oakland","40",null,null,15.0],["in home care services oakland ca","40",null,null,18.0],["home care services oakland","30",null,null,19.0]],"grid":[["home care services oakland",15.4,0,4,21],["in home care services oakland ca",16.2,0,0,25],["in home care services oakland",14.3,0,1,24]]},{"id":4168504,"client":"Arcadia Home Care & Staffing","name":"Arcadia Home Care & Staffing","city":"Sacramento","st":"CA","ref":"ARCADIAHOMEC-95831-3586","rating":4.5,"reviews":8.0,"gridAvg":9.1,"kw":[["elderly home care services sacramento","<10",null,null,null],["home care services sacramento ca","<10",null,null,null],["home care services sacramento","260",null,null,null],["in home care services sacramento","260",null,null,null],["sacramento in home care services","260",null,null,null],["home care","170",null,null,null],["home care near me","110",null,null,null],["in home care services sacramento ca","90",null,null,null],["home care agency near me","50",null,null,null],["in home care near me","50",null,null,null],["in home care support services sacramento","10",null,null,null]],"grid":[["home care",3.9,30,18,1],["in home care",5.8,18,24,7],["home care services",5.4,21,23,5],["senior care",null,0,0,49],["home care agency",9.3,2,28,19]]},{"id":4168501,"client":"Arcadia Home Care & Staffing","name":"Arcadia Home Care & Staffing","city":"San Diego","st":"CA","ref":"ARCADIAHOMEC-92108-4350","rating":5.0,"reviews":10.0,"gridAvg":8.5,"kw":[["elderly home care services san diego","<10",null,null,32.0],["home care","1300",null,null,null],["home care near me","590",null,null,22.0],["in home care near me","210",null,null,null],["home care services san diego","170",null,null,22.0],["in home care san diego","170",null,null,22.0],["home care agency near me","90",null,null,24.0],["home care services san diego ca","10",null,null,null],["in home care services san diego","10",null,null,23.0]],"grid":[["home care",4.5,37,4,8],["in home care",5.1,38,2,9],["home care services",4.9,31,8,10],["senior care",null,0,0,49],["home care agency",7.2,10,30,9]]},{"id":4168500,"client":"Arcadia Home Care & Staffing","name":"Arcadia Home Care & Staffing","city":"San Rafael","st":"CA","ref":"ARCADIAHOMEC-94903","rating":4.7,"reviews":15.0,"gridAvg":9.7,"kw":[["home care san rafael","<10",null,null,19.0],["home care services san rafael","<10",5.0,null,21.0],["in home care services san rafael","<10",null,null,22.0],["home care","170",null,null,19.0],["home care near me","170",null,null,21.0],["in home care near me","140",6.0,null,19.0],["home care agency near me","10",null,null,16.0],["home care san rafael ca","10",1.0,null,21.0]],"grid":[["home care",8.3,0,36,13],["in home care",8.7,0,36,13],["home care services",9.4,0,33,16],["senior care",16.2,1,9,39],["home care agency",5.7,0,49,0]]},{"id":4168502,"client":"Arcadia Home Care & Staffing","name":"Arcadia Home Care & Staffing","city":"Vacaville","st":"CA","ref":"ARCADIAHOMEC-95688-3649","rating":4.9,"reviews":7.0,"gridAvg":6.1,"kw":[["home care services in vacaville ca","<10",null,null,6.0],["home care services vacaville","<10",null,null,8.0],["senior home care vacaville","<10",null,null,6.0],["home care","90",null,null,9.0],["home care near me","70",null,null,9.0],["in home care near me","70",null,null,6.0],["home care agency near me","10",null,null,7.0],["in home care vacaville","10",null,null,5.0]],"grid":[["home care",4.3,16,32,1],["in home care",4.1,15,34,0],["home care services",5.3,11,36,2],["senior care",12.4,4,18,27],["home care agency",4.4,14,33,2]]},{"id":4168507,"client":"Arcadia Home Care & Staffing","name":"Arcadia Home Care & Staffing","city":"Walnut Creek","st":"CA","ref":"ARCADIAHOMEC-94596","rating":5.0,"reviews":3.0,"gridAvg":null,"kw":[["in home care services walnut creek","<10",null,null,null],["home care services walnut creek","30",8.0,null,null],["home care walnut creek","30",null,null,null]],"grid":[["home care services walnut creek",null,0,0,25],["in home care services walnut creek",null,0,0,25],["home care walnut creek",null,0,0,25]]},{"id":4168509,"client":"JourneyCare","name":"JourneyCare Home Health","city":"Barrington","st":"IL","ref":"JOURNEYCAREH-60010","rating":3.6,"reviews":14.0,"gridAvg":15.2,"kw":[["home health agency arlington heights","<10",null,null,null],["home health care arlington heights","<10",null,null,null],["home health care crystal lake il","<10",null,null,30.0],["home health care","110",null,null,6.0],["home health agency near me","10",null,null,10.0],["home health care barrington il","10",null,null,12.0],["home health care near me","10",null,null,15.0],["home health care northbrook","10",null,null,null]],"grid":[["home health care",11.5,6,20,23],["home health agency",14.0,0,17,32],["home health services",15.2,0,16,33],["skilled nursing at home",null,0,0,49],["home health care near me",14.4,0,19,30]]},{"id":4168512,"client":"JourneyCare","name":"JourneyCare Home Health","city":"Palos Heights","st":"IL","ref":"JOURNEYCAREH-60463-2","rating":null,"reviews":0.0,"gridAvg":20.9,"kw":[["home health agency orland park","<10",null,null,null],["home health care oak lawn","<10",null,null,null],["home health care tinley park","<10",null,null,null],["home health agency near me","10",null,null,null],["home health care","10",null,null,null],["home health care near me","10",null,null,null],["home health care orland park","10",null,null,null],["home health care palos heights il","10",null,null,28.0]],"grid":[["home health care",20.7,0,1,48],["home health agency",null,0,0,49],["home health services",null,0,0,49],["skilled nursing at home",null,0,0,49],["home health care near me",null,0,0,49]]},{"id":4168517,"client":"JourneyCare","name":"JourneyCare Hospice","city":"Barrington","st":"IL","ref":"JOURNEYCAREH-60010-2","rating":4.5,"reviews":109.0,"gridAvg":3.9,"kw":[["hospice","<10",null,1.0,1.0],["hospice care barrington il","<10",null,1.0,1.0],["hospice care lake county il","<10",4.0,3.0,3.0],["hospice care near me","<10",8.0,1.0,1.0],["hospice mchenry county il","<10",null,1.0,2.0],["palliative care barrington","<10",null,1.0,1.0],["palliative care near me","<10",null,1.0,1.0],["barrington il hospice","10",1.0,1.0,1.0],["hospice near me","10",null,1.0,1.0]],"grid":[["hospice",1.9,43,6,0],["hospice care",2.3,39,10,0],["palliative care",4.6,27,19,3],["hospice near me",3.1,32,17,0],["end of life care",7.4,9,28,12]]},{"id":4168313,"client":"JourneyCare","name":"JourneyCare Hospice","city":"Crystal Lake","st":"IL","ref":"JOURNEYCAREH-60014","rating":5.0,"reviews":5.0,"gridAvg":10.9,"kw":[["hospice","<10",null,1.0,1.0],["hospice care crystal lake il","<10",null,1.0,1.0],["hospice care near me","<10",21.0,1.0,1.0],["hospice crystal lake il","<10",null,null,1.0],["palliative care crystal lake","<10",12.0,null,1.0],["palliative care near me","<10",null,1.0,1.0],["hospice mchenry county il","10",2.0,1.0,1.0],["hospice near me","10",12.0,1.0,1.0]],"grid":[["hospice",9.9,16,11,22],["hospice care",8.9,21,11,17],["palliative care",13.8,7,13,29]]},{"id":4168310,"client":"JourneyCare","name":"JourneyCare Hospice","city":"Deerfield","st":"IL","ref":"JOURNEYCAREH-60015-3900","rating":4.0,"reviews":4.0,"gridAvg":20.5,"kw":[["hospice","<10",null,null,8.0],["hospice care chicago","<10",null,null,null],["hospice care deerfield il","<10",null,2.0,2.0],["hospice care lake county il","<10",null,null,7.0],["hospice care near me","<10",null,null,8.0],["hospice chicago","<10",15.0,null,null],["palliative care chicago","<10",null,null,null],["palliative care near me","<10",null,null,13.0],["hospice near me","10",null,null,7.0]],"grid":[["hospice",20.8,0,0,49],["hospice care",20.1,0,1,48],["palliative care",20.7,0,1,48]]},{"id":4168286,"client":"JourneyCare","name":"JourneyCare Hospice","city":"Palos Heights","st":"IL","ref":"JOURNEYCAREH-60463","rating":3.6,"reviews":45.0,"gridAvg":13.5,"kw":[["hospice","<10",null,3.0,3.0],["hospice care near me","<10",null,null,3.0],["hospice care palos heights il","<10",null,null,4.0],["hospice care tinley park","<10",25.0,null,null],["hospice orland park","<10",null,null,5.0],["palliative care near me","<10",null,null,6.0],["palliative care tinley park","<10",null,null,null],["hospice care orland park","10",null,null,9.0],["hospice near me","10",null,3.0,4.0]],"grid":[["hospice",11.5,3,20,26],["hospice care",10.9,4,21,24],["palliative care",18.0,0,6,43]]},{"id":4168519,"client":"Lifestyle Options","name":"LifeStyle Options","city":"Schaumburg","st":"IL","ref":"LIFESTYLEOPT-60173","rating":3.6,"reviews":13.0,"gridAvg":16.2,"kw":[["24 hour home care schaumburg","<10",null,null,10.0],["home care schaumburg il","10",null,null,null],["senior care schaumburg il","10",null,null,19.0]],"grid":[["home care schaumburg il",null,0,0,25],["senior care schaumburg il",18.2,0,0,25],["24 hour home care schaumburg",9.4,0,24,1]]},{"id":4168521,"client":"Miracle City Hospice","name":"Miracle City Hospice","city":"Broadview Heights","st":"OH","ref":"MIRACLECITYH-44147","rating":4.6,"reviews":19.0,"gridAvg":5.9,"kw":[["hospice broadview heights oh","<10",null,null,1.0],["hospice care broadview heights","<10",null,1.0,1.0],["hospice care cleveland oh","<10",null,null,26.0]],"grid":[["hospice broadview heights oh",1.0,25,0,0],["hospice care broadview heights",1.0,25,0,0],["hospice care cleveland oh",15.8,6,1,18]]},{"id":4168511,"client":"Queen City Hospice","name":"Queen City Hospice","city":"Fayetteville","st":"OH","ref":"QUEENCITYHOS-45118-9222","rating":null,"reviews":0.0,"gridAvg":6.4,"kw":[["hospice care brown county ohio","<10",null,2.0,2.0],["hospice care cincinnati","<10",null,2.0,2.0],["hospice fayetteville ohio","<10",null,null,1.0]],"grid":[["hospice fayetteville ohio",1.0,25,0,0],["hospice care brown county ohio",2.0,25,0,0],["hospice care cincinnati",16.2,0,0,25]]},{"id":4168516,"client":"Queen City Hospice","name":"Queen City Hospice","city":"Mason","st":"OH","ref":"QUEENCITYHOS-45040","rating":4.5,"reviews":208.0,"gridAvg":1.5,"kw":[["hospice care mason oh","<10",null,1.0,1.0],["hospice mason ohio","<10",null,1.0,1.0],["hospice care cincinnati","10",null,2.0,2.0]],"grid":[["hospice mason ohio",1.0,25,0,0],["hospice care mason oh",1.2,25,0,0],["hospice care cincinnati",2.4,22,3,0]]}];
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const band=r=>r==null?4:r<=3?0:r<=10?1:r<=20?2:3; // 0..3 ranked bands, 4 = not in top 50
+const BANDS=[['Map rank 1–3','var(--b1)','#0f7a52'],['Map rank 4–10','var(--b2)','#1a56db'],['Map rank 11–20','var(--b3)','#eda100'],['Map rank 21–50','var(--b4)','#eb6834'],['Not in top 50','var(--bn)','#c6d2e0']];
+const pill=r=>r==null?'<span class="pill rn">–</span>':`<span class="pill r${band(r)+1}">${r}</span>`;
+const volN=v=>v==='<10'?5:Number(v)||0;
+const f1=v=>v==null||isNaN(v)?'–':v.toFixed(1);
+const pc=(v,d=0)=>(v*100).toFixed(d)+'%';
+const n=v=>v.toLocaleString('en-US');
+
+DATA.forEach(l=>{
+  const k=l.kw; l.kwN=k.length; l.packN=k.filter(x=>x[3]!=null).length; l.cov=l.kwN?l.packN/l.kwN:0;
+  const lf=k.map(x=>x[4]).filter(x=>x!=null); l.lfAvg=lf.length?lf.reduce((a,b)=>a+b,0)/lf.length:null;
+  l.d=[0,0,0,0,0]; k.forEach(x=>l.d[band(x[4])]++);
+  l.orgN=k.filter(x=>x[2]!=null).length;
+  l.gPts=l.grid.reduce((a,g)=>a+g[2]+g[3]+g[4],0); l.gTop=l.grid.reduce((a,g)=>a+g[2],0); l.gridTop=l.gPts?l.gTop/l.gPts:0;
+  l.label=`${l.city}, ${l.st}`;
+});
+const KWFLAG=new Map();
+DATA.forEach(l=>{
+  const g={};l.grid.forEach(x=>g[x[0]]=x);
+  const rtNR=l.kw.filter(x=>x[4]==null).length, gridNone=l.grid.every(x=>x[1]==null), f=[], kwm=[];
+  l.kw.forEach(x=>{const gx=g[x[0]];if(x[4]==null&&gx&&gx[1]!=null&&gx[1]<=12){KWFLAG.set(l.id+'|'+x[0],gx[1]);kwm.push(`"${x[0]}" (grid ${gx[1]})`)}});
+  if(rtNR===l.kwN&&gridNone) f.push({sev:'crit',type:'Not found anywhere',excl:false,show:`Rank Tracker finds the listing for 0 of ${l.kwN} keywords and the grid finds it at 0 of ${l.gPts} points. Its Google Business Profile performance data is also empty.`,check:'Confirm the Google Business Profile is verified, live and not suspended, and that BrightLocal is linked to that profile.'});
+  else if(rtNR/l.kwN>=.5&&l.gridAvg!=null&&l.gridAvg<=15) f.push({sev:'high',type:'Rank Tracker missing the listing',excl:false,show:`Rank Tracker finds the listing for ${l.kwN-rtNR} of ${l.kwN} keywords, but the grid ranks it ${l.gridAvg.toFixed(1)} on average, with ${Math.round(l.gridTop*100)}% of points in the top 3.`,check:"Check the Rank Tracker report's search location (city or ZIP) and the business details it matches on (name, phone, Google listing)."});
+  else if(l.reviews===0&&rtNR/l.kwN>=.5) f.push({sev:'high',type:'Possible wrong listing linked',excl:false,show:`BrightLocal reads 0 reviews on the matched listing, Rank Tracker finds it for ${l.kwN-rtNR} of ${l.kwN} keywords, and the grid average is ${l.gridAvg==null?'not ranked':l.gridAvg.toFixed(1)}.`,check:'Compare the profile linked in BrightLocal with the live Google listing. A duplicate or old listing may be attached.'});
+  if(kwm.length&&!f.some(z=>z.excl)) f.push({sev:'med',type:'Keyword mismatch',excl:false,show:`Rank Tracker reads not found for ${kwm.join(', ')}, while the grid ranks the listing for the same keyword.`,check:'Re-run the keyword. If it still reads not found, check the search location on the Rank Tracker report.'});
+  if(l.reviews===0&&!f.some(z=>z.excl)) f.push({sev:'low',type:'Check linked listing',excl:false,show:'BrightLocal reads 0 reviews on the matched listing even though the location ranks well.',check:'Confirm the linked profile is the main listing and not a newer duplicate.'});
+  l.flags=f; l.excl=f.some(z=>z.excl); l.sev=f.length?f[0].sev:null;
+});
+const CONF={
+ 4168525:[{sev:'crit',type:'Profile not verified',excl:false,show:'Business Profile Manager shows this listing as "Verification required" (store 01171), and a second listing at the same address is marked Duplicate (store 1171). Neither Rank Tracker nor the grid can find it.',check:'Complete verification for store 01171 and ask Google to remove duplicate 1171. Re-run Rank Tracker and the grid once it is live.'}],
+ 4168507:[{sev:'crit',type:'Profile not verified',excl:false,show:'Business Profile Manager shows this listing as "Verification required" (store 01518, 1904 Olympic Blvd). Neither Rank Tracker nor the grid can find it.',check:'Complete verification for store 01518, then re-run Rank Tracker and the grid.'}],
+ 4168512:[{sev:'high',type:'Duplicate listing competing',excl:false,show:'The profile is verified and correctly linked, and it has no reviews on Google. Google also shows an unmanaged "Journeycare Palos Heights Office" listing at the same suite (11950 S Harlem Ave, Suite 202-4). JourneyCare Hospice sits next door in Suite 202-3 with 45 reviews.',check:'Ask Google to remove or merge the unmanaged "Palos Heights Office" listing, and start review requests for Home Health.'}],
+ 4168500:[{sev:'high',type:'Two verified listings in one city',excl:false,show:'Business Profile Manager has two verified Arcadia profiles in San Rafael 94903: 185 N Redwood Dr (store 01521) and 4040 Civic Center Dr (store 5471). They split Google\'s signals; map ranks sit around 19 to 22.',check:'Confirm which office is active and close or merge the other profile.'}],
+ 4168293:[{sev:'low',type:'Unclaimed duplicate',excl:false,show:'The grid shows a second "Addus HomeCare" listing in Quincy (average rank 11.2) that is not in your Business Profile account. Only one Quincy profile (store 3390) is managed.',check:'Claim the second listing and request a merge or removal.'}],
+ 4168522:[{sev:'low',type:'Edits pending',excl:false,show:'Business Profile Manager shows edits pending Google review for Niles (store 3320).',check:'Watch for the edits to publish; rankings can shift once they do.'}]
+};
+DATA.forEach(l=>{if(CONF[l.id]){l.flags=CONF[l.id].concat(l.flags.filter(f=>f.sev==='med'&&f.type==='Keyword mismatch'&&!CONF[l.id].some(c=>c.sev==='med')));l.excl=l.flags.some(z=>z.excl);l.sev=l.flags[0].sev}});
+DATA.forEach(l=>{l.flags=l.flags.filter(f=>!['Keyword mismatch','Rank Tracker missing the listing','Searched from downtown'].includes(f.type));l.excl=false;l.sev=l.flags.length?l.flags[0].sev:null});KWFLAG.clear();
+DATA.filter(l=>l.id===4168511).forEach(l=>l.flags.forEach(f=>{f.show+=' The Google profile is verified and correctly linked.'}));
+const SEV={crit:['Not verified','err'],high:['Listing issue','err'],med:['Check listing','wrn'],low:['Check listing','wrn']};
+const tflag=l=>l.sev?`<span class="pill ${SEV[l.sev][1]} tflag" title="${esc(l.flags.map(f=>f.type).join('; '))}">${SEV[l.sev][0]}</span>`:'';
+const kwf=(l,k)=>KWFLAG.has(l.id+'|'+k)?` <span class="pill wrn tflag" title="Grid ranks this keyword ${KWFLAG.get(l.id+'|'+k)}">tracker miss</span>`:'';
+const clients=[...new Set(DATA.map(l=>l.client))].sort();
+$('#f-client').innerHTML+=clients.map(c=>`<option>${esc(c)}</option>`).join('');
+
+const S={excl:false,loc:null,client:'',q:'',sec:'overview',open:new Set(),kwf:'all',sort:{map:{k:'cov',d:-1},kw:{k:'vol',d:-1}}};
+try{const s=localStorage.getItem('dra-lr-sec');if(s&&document.getElementById('sec-'+s))S.sec=s;const L=+localStorage.getItem('dra-lr-loc');if(DATA.some(l=>l.id===L))S.loc=L}catch(e){}
+try{const m=location.hash.match(/^#loc-(\d+)$/);if(m&&DATA.some(l=>l.id===+m[1])){S.loc=+m[1];S.sec='location'}}catch(e){}
+const byOrder=DATA.slice().sort((a,b)=>a.client.localeCompare(b.client)||a.label.localeCompare(b.label));
+function goLoc(id){S.loc=id;S.sec='location';try{localStorage.setItem('dra-lr-loc',id);localStorage.setItem('dra-lr-sec','location')}catch(e){};render();window.scrollTo(0,0)}
+const locLink=l=>{const L=DATA.find(x=>x.id===l.id);return `<button class="loclink" data-loc="${l.id}">${esc(l.label)}</button>${tflag(L)}`};
+function bindLocLinks(root){root.querySelectorAll('[data-loc]').forEach(el=>el.addEventListener('click',e=>{e.stopPropagation();goLoc(+el.dataset.loc)}))}
+
+function sel(){const q=S.q.toLowerCase();return DATA.filter(l=>(!S.excl||!l.excl)&&(!S.client||l.client===S.client)&&(!q||l.label.toLowerCase().includes(q)||l.name.toLowerCase().includes(q)||l.kw.some(x=>x[0].includes(q))||l.grid.some(x=>x[0].includes(q))))}
+function agg(ls){
+  const kw=ls.flatMap(l=>l.kw), lf=kw.map(x=>x[4]).filter(x=>x!=null), d=[0,0,0,0,0]; kw.forEach(x=>d[band(x[4])]++);
+  const pts=ls.reduce((a,l)=>a+l.gPts,0), top=ls.reduce((a,l)=>a+l.gTop,0), ga=ls.map(l=>l.gridAvg).filter(x=>x!=null);
+  return {n:ls.length,kw:kw.length,pack:kw.filter(x=>x[3]!=null).length,lfAvg:lf.length?lf.reduce((a,b)=>a+b,0)/lf.length:null,d,
+    org:kw.filter(x=>x[2]!=null).length,pts,top,gridTop:pts?top/pts:0,gridAvg:ga.length?ga.reduce((a,b)=>a+b,0)/ga.length:null,gridNR:ls.filter(l=>l.gridAvg==null).length,
+    reviews:ls.reduce((a,l)=>a+(l.reviews||0),0)};
+}
+const tiles=(id,t)=>{$(id).innerHTML=t.map(([lab,val,sub,c])=>`<div class="tile" style="--tc:${c}"><div class="lab">${lab}</div><div class="val">${val}</div><div class="sub">${sub}</div></div>`).join('')};
+const scope=()=>S.client?S.client:'Across all six clients';
+
+// horizontal bar chart: rows [{label, sub, value(0..1 or number), text}], max
+function hbar(rows,{max=1,color='#1a56db',lw=190,fmt}={}){
+  const W=900,rh=30,top=26,h=top+rows.length*rh+8,x0=lw+12,bw=W-x0-150;
+  let s=`<svg class="chart" viewBox="0 0 ${W} ${h}" role="img"><text class="axis-txt" x="${x0}" y="15">0</text><text class="axis-txt" x="${x0+bw}" y="15" text-anchor="end">${fmt?fmt(max):max}</text>`;
+  [0.25,.5,.75,1].forEach(t=>s+=`<line class="gridline" x1="${x0+bw*t}" x2="${x0+bw*t}" y1="20" y2="${h-6}"/>`);
+  rows.forEach((r,i)=>{const y=top+i*rh,w=Math.max(r.value/max*bw,r.value>0?2:0);if(r.id)s+=`<rect class="hit" data-loc="${r.id}" x="0" y="${y}" width="${W}" height="${rh}" fill="transparent"><title>Open ${esc(r.label)}</title></rect>`;
+    s+=`<text class="pt-label" x="${lw}" y="${y+15}" text-anchor="end" fill="#0d1826" font-size="12.5">${esc(r.label)}</text>`+
+      (r.sub?`<text x="${lw}" y="${y+26}" text-anchor="end" fill="${r.sub.startsWith('⚠')?'#b03a2e':'#7d8b9d'}" font-size="9.5" font-family="IBM Plex Mono,monospace">${esc(r.sub)}</text>`:'')+
+      `<rect x="${x0}" y="${y+3}" width="${bw}" height="16" rx="3" fill="#eef3f8"/><rect x="${x0}" y="${y+3}" width="${w}" height="16" rx="3" fill="${r.color||color}"><title>${esc(r.label)}: ${esc(r.text)}</title></rect>`+
+      `<text class="pt-label" x="${x0+bw+10}" y="${y+15}" fill="#46556a" font-size="11.5">${esc(r.text)}</text>`});
+  return s+'</svg>';
+}
+function stacked(rows,lw=150){
+  const W=900,rh=34,top=8,h=top+rows.length*rh,x0=lw+12,bw=W-x0-20;
+  let s=`<svg class="chart" viewBox="0 0 ${W} ${h}" role="img" aria-label="Keywords by map rank band">`;
+  rows.forEach((r,i)=>{const y=top+i*rh;let x=x0;
+    s+=`<text class="pt-label" x="${lw}" y="${y+16}" text-anchor="end" fill="#0d1826" font-size="12.5">${esc(r.label)}</text>`;
+    r.d.forEach((v,j)=>{if(!v)return;const w=v/r.t*bw;s+=`<rect x="${x}" y="${y+3}" width="${Math.max(w-1.5,1)}" height="18" rx="3" fill="${BANDS[j][2]}"><title>${BANDS[j][0]}: ${v} (${pc(v/r.t,1)})</title></rect>`+(w>36?`<text x="${x+w/2}" y="${y+16}" text-anchor="middle" font-size="11" font-weight="700" fill="${j===4?'#46556a':'#fff'}">${v}</text>`:'');x+=w});
+  });
+  return s+'</svg>';
+}
+const legendBands=id=>{$(id).innerHTML=BANDS.map(b=>`<li><span class="sw" style="background:${b[1]}"></span>${b[0]}</li>`).join('')};
+const minibar=d=>{const t=d.reduce((a,b)=>a+b,0)||1;return `<span class="minibar" title="${BANDS.map((b,i)=>b[0]+': '+d[i]).join(' · ')}">${d.map((v,i)=>v?`<i style="width:${v/t*100}%;background:${BANDS[i][2]}"></i>`:'').join('')}</span>`};
+
+function sortRows(rows,s,get){return rows.slice().sort((a,b)=>{const x=get(a,s.k),y=get(b,s.k);if(x==null&&y==null)return 0;if(x==null)return 1;if(y==null)return -1;return (typeof x==='string'?x.localeCompare(y):x-y)*s.d})}
+function thead(cols,s){return '<thead><tr>'+cols.map(c=>c.k?`<th class="sortable${c.l?' l':''}" data-k="${c.k}"${s.k===c.k?` aria-sort="${s.d>0?'ascending':'descending'}"`:''} style="${c.l?'text-align:left':''}">${c.t}<span class="arr">${s.k===c.k?(s.d>0?'▲':'▼'):'▲▼'}</span></th>`:`<th style="${c.l?'text-align:left':''}">${c.t}</th>`).join('')+'</tr></thead>'}
+function bindSort(tbl,key,lowFirst){tbl.querySelectorAll('th.sortable').forEach(th=>th.onclick=()=>{const s=S.sort[key],k=th.dataset.k;if(s.k===k)s.d*=-1;else{s.k=k;s.d=lowFirst.includes(k)?1:-1}render()})}
+
+function rOverview(ls){
+  const a=agg(ls);
+  const ex=DATA.filter(l=>l.sev==='crit'&&(!S.client||l.client===S.client));
+  const ob=$('#ov-err');ob.hidden=!ex.length;
+  ob.innerHTML=`<svg class="fi" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M10 2.5 18 17H2L10 2.5Z" stroke="#b03a2e" stroke-width="1.6" fill="#fdeeec"/><path d="M10 8v4" stroke="#7a2219" stroke-width="1.6" stroke-linecap="round"/><circle cx="10" cy="14.3" r=".9" fill="#7a2219"/></svg><div class="ft"><b>${ex.length} location${ex.length===1?' has an':'s have'} unverified Google profile${ex.length===1?'':'s'}:</b> ${ex.map(l=>esc(l.label)+' ('+esc(l.name)+')').join(', ')}. Nothing can be tracked for them until they are verified. They stay in the figures below and read as not ranking. <button class="inl" id="go-err">See all listing and tracking issues</button></div>`;
+  const ge=$('#go-err');if(ge)ge.onclick=()=>{S.sec='errors';render();window.scrollTo(0,0)};
+  $('#h-overview').textContent=a.kw?`${pc(a.pack/a.kw)} of tracked keywords put a location in the Local Pack`:'No locations match this filter';
+  $('#p-overview').textContent=`${scope()}, ${a.n} location${a.n===1?'':'s'} track ${a.kw} keywords in Rank Tracker. ${a.d[0]} reach the top 3 on the map and ${a.d[4]} do not reach the top 50. On the grid, the listing ranks in the top 3 at ${pc(a.gridTop)} of points checked.`;
+  tiles('#t-overview',[['Locations',a.n,`${new Set(ls.map(l=>l.client)).size} client${new Set(ls.map(l=>l.client)).size===1?'':'s'}`,'#1a56db'],
+    ['Keywords tracked',n(a.kw),'BrightLocal Rank Tracker, Google US','#7c8798'],
+    ['In the Local Pack',a.pack,`${a.kw?pc(a.pack/a.kw,1):'0%'} of tracked keywords`,'#0f7a52'],
+    ['Map rank 1–3',a.d[0],`Avg map rank ${f1(a.lfAvg)} where ranking`,'#1baf7a'],
+    ['Not in top 50',a.d[4],`${a.kw?pc(a.d[4]/a.kw,1):'0%'} of tracked keywords`,'#eb6834'],
+    ['Grid points top 3',pc(a.gridTop),`${n(a.top)} of ${n(a.pts)} points checked`,'#eda100']]);
+  legendBands('#lg-bands');
+  $('#n-bands').textContent=`All ${a.kw} tracked keywords by Local Finder position. ${a.kw?pc((a.d[0]+a.d[1])/a.kw):'0%'} rank in the top 10 on the map.`;
+  $('#ch-bands').innerHTML=a.kw?hbar(BANDS.map((b,i)=>({label:b[0],value:a.d[i],text:`${a.d[i]} (${pc(a.d[i]/a.kw,1)})`,color:b[2]})),{max:Math.max(...a.d),lw:120,fmt:v=>v}):'';
+  const rows=clients.map(c=>{const L=DATA.filter(l=>l.client===c),g=agg(L);return {c,...g}});
+  const tot=agg(DATA);
+  $('#tb-clients').innerHTML=thead([{t:'Client',l:1},{t:'Locations'},{t:'Keywords'},{t:'In Local Pack'},{t:'Map rank spread',l:1},{t:'Avg map rank'},{t:'Grid pts top 3'},{t:'Reviews'}],{})+
+    '<tbody>'+rows.map(r=>`<tr${S.client===r.c?' style="background:var(--blue-soft)"':''}><td><button class="linkish" data-client="${esc(r.c)}" style="background:none;border:0;padding:0;color:var(--blue);font-weight:700;text-decoration:underline;text-underline-offset:2px">${esc(r.c)}</button></td><td>${r.n}</td><td>${r.kw}</td><td>${r.pack} <span class="loc-s">(${pc(r.pack/r.kw)})</span></td><td class="l">${minibar(r.d)}</td><td>${f1(r.lfAvg)}</td><td>${pc(r.gridTop)}</td><td>${n(r.reviews)}</td></tr>`).join('')+'</tbody>'+
+    `<tfoot><tr><td>All clients</td><td>${tot.n}</td><td>${tot.kw}</td><td>${tot.pack} <span class="loc-s">(${pc(tot.pack/tot.kw)})</span></td><td class="l">${minibar(tot.d)}</td><td>${f1(tot.lfAvg)}</td><td>${pc(tot.gridTop)}</td><td>${n(tot.reviews)}</td></tr></tfoot>`;
+  document.querySelectorAll('#tb-clients [data-client]').forEach(b=>b.onclick=()=>{S.client=S.client===b.dataset.client?'':b.dataset.client;$('#f-client').value=S.client;render()});
+}
+function rPack(ls){
+  const a=agg(ls), full=ls.filter(l=>l.cov===1).length, none=ls.filter(l=>l.cov===0).length;
+  $('#h-pack').textContent=`${none} of ${a.n} location${a.n===1?'':'s'} never appear in the Local Pack`;
+  $('#p-pack').textContent=`${full} location${full===1?'':'s'} show in the pack for every tracked keyword. Most of the rest rank on the map but sit just outside the top three.`;
+  const near=ls.flatMap(l=>l.kw).filter(x=>x[3]==null&&x[4]!=null&&x[4]<=10).length;
+  tiles('#t-pack',[['In the Local Pack',a.pack,`of ${a.kw} tracked keywords`,'#0f7a52'],['Full coverage',full,'locations in the pack for every keyword','#1baf7a'],['No coverage',none,'locations never in the pack','#eb6834'],['Map 4–10, no pack',near,'keywords closest to entering the pack','#eda100']]);
+  const rows=ls.slice().sort((x,y)=>y.cov-x.cov||x.label.localeCompare(y.label)).map(l=>({id:l.id,label:l.label,sub:l.sev==='crit'?'⚠ not verified · '+l.name:l.name,value:l.cov,text:`${pc(l.cov)}  (${l.packN} of ${l.kwN})`,color:l.cov>=.5?'#0f7a52':l.cov>0?'#1a56db':'#c6d2e0'}));
+  $('#ch-pack').innerHTML=rows.length?hbar(rows,{max:1,lw:200,fmt:v=>'100%'}):'';bindLocLinks($('#ch-pack'));
+}
+function drill(l){
+  const kws=l.kw.slice().sort((a,b)=>(a[4]??99)-(b[4]??99)||volN(b[1])-volN(a[1]));
+  return `<div class="drill-grid"><div><h4>Rank Tracker keywords</h4><div class="tbl-scroll"><table><thead><tr><th>Keyword</th><th>Volume</th><th>Local Pack</th><th>Map</th></tr></thead><tbody>${kws.map(x=>`<tr><td><span class="pth">${esc(x[0])}</span></td><td class="dim">${esc(x[1])}</td><td>${pill(x[3])}</td><td>${pill(x[4])}</td></tr>`).join('')}</tbody></table></div></div>
+  <div><h4>Local Search Grid</h4><div class="tbl-scroll"><table><thead><tr><th>Keyword</th><th>Avg</th><th>Top 3 pts</th></tr></thead><tbody>${l.grid.map(g=>{const t=g[2]+g[3]+g[4];return `<tr><td><span class="pth" style="max-width:200px">${esc(g[0])}</span></td><td>${g[1]==null?'<span class="pill rn">NR</span>':pill(g[1])}</td><td>${g[2]}/${t}</td></tr>`}).join('')}</tbody></table></div>
+  <p class="card-note" style="margin:8px 0 0">${esc(l.ref)} · BrightLocal ID ${l.id} · ${l.reviews?`${l.reviews} reviews, ${l.rating}★`:'0 reviews on matched listing'}</p></div></div>`;
+}
+function rMap(ls){
+  const a=agg(ls), best=ls.filter(l=>l.lfAvg!=null).sort((x,y)=>x.lfAvg-y.lfAvg)[0];
+  $('#h-map').textContent=`Average map rank is ${f1(a.lfAvg)} where locations rank at all`;
+  $('#p-map').textContent=`${a.d[0]+a.d[1]} of ${a.kw} keywords rank in the map top 10 and ${a.d[4]} miss the top 50.`+(best?` ${best.label} (${best.name}) leads at ${f1(best.lfAvg)}.`:'');
+  legendBands('#lg-map');
+  const s=S.sort.map, rows=sortRows(ls,s,(l,k)=>k==='label'?l.label:k==='top3'?l.d[0]:l[k]);
+  const T=$('#tb-map');
+  T.innerHTML=thead([{t:'Location',k:'label',l:1},{t:'Keywords',k:'kwN'},{t:'Coverage',k:'cov'},{t:'Avg map rank',k:'lfAvg'},{t:'Map top 3',k:'top3'},{t:'Rank spread',l:1},{t:'Grid avg',k:'gridAvg'}],s)+
+    '<tbody>'+(rows.map(l=>{const o=false;return `<tr class="xrow" tabindex="0" data-id="${l.id}" title="Open location detail"><td><span class="loc-n">${esc(l.label)}</span>${tflag(l)}<div class="loc-s">${esc(l.name)}</div></td><td>${l.kwN}</td><td>${pc(l.cov)}</td><td>${l.lfAvg==null?'<span class="pill rn">NR</span>':pill(+l.lfAvg.toFixed(1))}</td><td>${l.d[0]}</td><td class="l">${minibar(l.d)}</td><td>${l.gridAvg==null?'<span class="pill rn">NR</span>':pill(l.gridAvg)}</td></tr>`+(o?`<tr class="drill"><td colspan="8">${drill(l)}</td></tr>`:'')}).join('')||'<tr><td colspan="8" class="dim">No locations match. Clear the search or pick another client.</td></tr>')+'</tbody>';
+  bindSort(T,'map',['label','client','lfAvg','gridAvg']);
+  T.querySelectorAll('tr.xrow').forEach(tr=>{const t=()=>goLoc(+tr.dataset.id);tr.onclick=t;tr.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();t()}}});
+}
+function rGrid(ls){
+  const a=agg(ls), ranked=ls.filter(l=>l.gridAvg!=null), lead=ranked.filter(l=>l.gridAvg<=3).length;
+  $('#h-grid').textContent=`${lead} location${lead===1?'':'s'} hold a grid average inside the top 3`;
+  $('#p-grid').textContent=`The grid shows how rank changes across the service area, not just at the office. Average grid rank across ranked locations is ${f1(a.gridAvg)}, and ${a.gridNR} location${a.gridNR===1?' does':'s do'} not rank at any point.`;
+  tiles('#t-grid',[['Grid avg map rank',f1(a.gridAvg),'mean of location averages','#1a56db'],['Points in the top 3',pc(a.gridTop),`${n(a.top)} of ${n(a.pts)} points`,'#0f7a52'],['Grid keywords',ls.reduce((x,l)=>x+l.grid.length,0),'across selected locations','#7c8798'],['Not ranking',a.gridNR,'locations with no ranked grid point','#eb6834']]);
+  const rows=ranked.slice().sort((x,y)=>x.gridAvg-y.gridAvg).map(l=>({id:l.id,label:l.label,sub:l.sev==='crit'?'⚠ not verified · '+l.name:l.name,value:l.gridAvg,text:`${f1(l.gridAvg)}  ·  ${pc(l.gridTop)} pts top 3`,color:l.gridAvg<=3?'#0f7a52':l.gridAvg<=10?'#1a56db':l.gridAvg<=15?'#eda100':'#eb6834'}));
+  $('#ch-grid').innerHTML=rows.length?hbar(rows,{max:21,lw:200,fmt:()=>'21'}):'';bindLocLinks($('#ch-grid'));
+  const nr=ls.filter(l=>l.gridAvg==null);
+  $('#n-grid-nr').textContent=nr.length?'Not ranking at any grid point: '+nr.map(l=>`${l.label} (${l.name})`).join(', ')+'.':'';
+  $('#tb-grid').innerHTML='<thead><tr><th>Keyword</th><th style="text-align:left">Location</th><th>Avg rank</th><th>Top 3</th><th>4–10</th><th>11+ / NR</th><th>Top 3 share</th></tr></thead><tbody>'+
+    ls.flatMap(l=>l.grid.map(g=>{const t=g[2]+g[3]+g[4];return `<tr><td><span class="pth">${esc(g[0])}</span></td><td class="l">${locLink(l)} <span class="loc-s">${esc(l.name)}</span></td><td>${g[1]==null?'<span class="pill rn">NR</span>':pill(g[1])}</td><td>${g[2]}</td><td>${g[3]}</td><td>${g[4]}</td><td>${pc(g[2]/t)}</td></tr>`})).join('')+'</tbody>';
+  bindLocLinks($('#tb-grid'));
+}
+function rKw(ls){
+  const q=S.q.toLowerCase();
+  let rows=ls.flatMap(l=>l.kw.map(x=>({id:l.id,flag:kwf(l,x[0]),kw:x[0],label:l.label,name:l.name,volT:x[1],vol:volN(x[1]),org:x[2],pack:x[3],lf:x[4]})));
+  if(q) rows=rows.filter(r=>r.kw.includes(q)||r.label.toLowerCase().includes(q)||r.name.toLowerCase().includes(q));
+  const all=rows.length;
+  if(S.kwf==='pack')rows=rows.filter(r=>r.pack!=null); if(S.kwf==='top3')rows=rows.filter(r=>r.lf!=null&&r.lf<=3); if(S.kwf==='nr')rows=rows.filter(r=>r.lf==null);
+  const hv=rows.filter(r=>r.vol>=50).length;
+  $('#h-kw').textContent=`${rows.length} keyword${rows.length===1?'':'s'} in view`;
+  $('#p-kw').textContent=`Every Rank Tracker keyword for the selected locations (${all} in total). Monthly volume is BrightLocal's estimate; "<10" is its lowest bucket. ${hv} keyword${hv===1?'':'s'} in view have 50+ searches a month.`;
+  document.querySelectorAll('#seg-kw button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.f===S.kwf));
+  const s=S.sort.kw; rows=sortRows(rows,s,(r,k)=>r[k]);
+  const T=$('#tb-kw');
+  T.innerHTML=thead([{t:'Keyword',k:'kw',l:1},{t:'Location',k:'label',l:1},{t:'Volume',k:'vol'},{t:'Local Pack',k:'pack'},{t:'Map rank',k:'lf'}],s)+
+    '<tbody>'+(rows.map(r=>`<tr><td><span class="pth">${esc(r.kw)}</span>${r.flag}</td><td class="l">${locLink({id:r.id,label:r.label})}<div class="loc-s">${esc(r.name)}</div></td><td class="dim">${esc(r.volT)}</td><td>${pill(r.pack)}</td><td>${pill(r.lf)}</td></tr>`).join('')||'<tr><td colspan="6" class="dim">No keywords match this filter.</td></tr>')+'</tbody>';
+  bindSort(T,'kw',['kw','label','pack','lf']);bindLocLinks(T);
+}
+function rankStrip(kws){
+  const W=900,lw=250,packX=285,x0=340,x1=830,nrX=872,rh=30,top=34,h=top+kws.length*rh+6;
+  const X=r=>x0+Math.log(r)/Math.log(50)*(x1-x0);
+  let s=`<svg class="chart" viewBox="0 0 ${W} ${h}" role="img" aria-label="Keyword map positions">`;
+  s+=`<rect x="${X(1)-8}" y="22" width="${X(3.5)-X(1)+8}" height="${h-26}" fill="#eefaf4"/>`;
+  s+=`<text class="axis-txt" x="${packX}" y="15" text-anchor="middle">PACK</text>`;
+  [1,3,5,10,20,50].forEach(v=>{s+=`<line class="gridline" x1="${X(v)}" x2="${X(v)}" y1="22" y2="${h-4}"/><text class="axis-txt" x="${X(v)}" y="15" text-anchor="middle">${v}</text>`});
+  s+=`<line class="gridline" x1="${nrX}" x2="${nrX}" y1="22" y2="${h-4}" stroke-dasharray="3 3"/><text class="axis-txt" x="${nrX}" y="15" text-anchor="middle">NR</text>`;
+  kws.forEach((k,i)=>{const y=top+i*rh+rh/2-4, lf=k[4], org=k[2], pk=k[3];
+    s+=`<line x1="${x0-8}" x2="${nrX+12}" y1="${y}" y2="${y}" stroke="#eef3f8"/>`;
+    s+=`<text x="${lw}" y="${y+4}" text-anchor="end" font-family="IBM Plex Mono,monospace" font-size="12" fill="#0d1826">${esc(k[0].length>34?k[0].slice(0,33)+'…':k[0])}</text>`;
+    s+=pk!=null?`<rect x="${packX-15}" y="${y-9}" width="30" height="18" rx="9" fill="#eefaf4" stroke="#a9dcc4"/><text x="${packX}" y="${y+4}" text-anchor="middle" font-family="IBM Plex Mono,monospace" font-size="11" fill="#0f7a52">${pk}</text>`:`<text x="${packX}" y="${y+4}" text-anchor="middle" font-size="12" fill="#c6d2e0">–</text>`;
+    if(false&&org!=null){const ox=X(org);s+=`<polygon points="${ox},${y-7} ${ox+7},${y} ${ox},${y+7} ${ox-7},${y}" fill="#fff" stroke="#002145" stroke-width="1.6"><title>Organic ${org}</title></polygon>`}
+    const cx=lf==null?nrX:X(lf), col=lf==null?'#c6d2e0':BANDS[band(lf)][2];
+    s+=`<circle cx="${cx}" cy="${y}" r="6.5" fill="${col}" stroke="#fff" stroke-width="1.5"><title>${esc(k[0])}: map ${lf==null?'not in top 50':lf}${pk!=null?', Local Pack '+pk:''} · volume ${k[1]}</title></circle>`;
+    if(lf!=null)s+=`<text x="${cx+11}" y="${y+4}" font-size="11" font-weight="700" fill="#46556a">${lf}</text>`;
+  });
+  return s+'</svg>';
+}
+function gridBars(grid){
+  const W=520,rh=44,h=grid.length*rh+4,bw=W-70;
+  let s=`<svg class="chart" style="min-width:300px" viewBox="0 0 ${W} ${h}" role="img" aria-label="Grid points by rank">`;
+  grid.forEach((g,i)=>{const y=i*rh,t=g[2]+g[3]+g[4];let x=0;
+    s+=`<text x="0" y="${y+13}" font-family="IBM Plex Mono,monospace" font-size="12" fill="#0d1826">${esc(g[0])}</text>`;
+    [[g[2],'#0f7a52','rank 1–3'],[g[3],'#1a56db','rank 4–10'],[g[4],'#c6d2e0','11+ or not ranking']].forEach(([v,c,lab])=>{if(!v)return;const w=v/t*bw;s+=`<rect x="${x}" y="${y+19}" width="${Math.max(w-1.5,1)}" height="15" rx="3" fill="${c}"><title>${v} of ${t} points ${lab}</title></rect>`+(w>26?`<text x="${x+w/2}" y="${y+30.5}" text-anchor="middle" font-size="10.5" font-weight="700" fill="${c==='#c6d2e0'?'#46556a':'#fff'}">${v}</text>`:'');x+=w});
+    s+=`<text x="${W}" y="${y+31}" text-anchor="end" font-size="12" font-weight="800" fill="#0d1826">${g[1]==null?'NR':g[1].toFixed(1)}</text><text x="${W}" y="${y+13}" text-anchor="end" class="axis-txt">AVG</text>`;
+  });
+  return s+'</svg>';
+}
+function rLocation(){
+  const pool=byOrder.filter(l=>!S.client||l.client===S.client);
+  if(!pool.some(l=>l.id===S.loc))S.loc=pool[0].id;
+  const l=DATA.find(x=>x.id===S.loc), i=pool.indexOf(l);
+  const groups=[...new Set(pool.map(x=>x.client))];
+  $('#f-loc').innerHTML=groups.map(c=>`<optgroup label="${esc(c)}">${pool.filter(x=>x.client===c).map(x=>`<option value="${x.id}"${x.id===l.id?' selected':''}>${x.sev?'⚠ ':''}${esc(x.label)} · ${esc(x.name)}</option>`).join('')}</optgroup>`).join('');
+  $('#loc-pos').textContent=`${i+1} of ${pool.length}${S.client?' · '+S.client:''}`;
+  $('#loc-prev').disabled=pool.length<2; $('#loc-next').disabled=pool.length<2;
+  $('#loc-prev').onclick=()=>goLoc(pool[(i-1+pool.length)%pool.length].id);
+  $('#loc-next').onclick=()=>goLoc(pool[(i+1)%pool.length].id);
+  const peers=DATA.filter(x=>x.client===l.client), ca=agg(peers);
+  const sorted=l.kw.slice().sort((a,b)=>(a[4]??99)-(b[4]??99)||volN(b[1])-volN(a[1]));
+  const best=sorted[0], nr=l.d[4], near=l.kw.filter(x=>x[3]==null&&x[4]!=null&&x[4]>=4&&x[4]<=10);
+  $('#loc-err').innerHTML=l.flags.map(f=>`<div class="flag ${f.sev==='crit'||f.sev==='high'?'err':''}" role="note"><svg class="fi" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M10 2.5 18 17H2L10 2.5Z" stroke="${f.sev==='crit'||f.sev==='high'?'#b03a2e':'#d79a2b'}" stroke-width="1.6"/><path d="M10 8v4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><circle cx="10" cy="14.3" r=".9" fill="currentColor"/></svg><div class="ft"><b>${esc(f.type)}.</b> ${esc(f.show)} <b>Check:</b> ${esc(f.check)}</div></div>`).join('');
+  $('#e-loc').textContent=l.client;
+  $('#h-loc').textContent=`${l.label} — ${l.name}`;
+  let p=`In the Local Pack for ${l.packN} of ${l.kwN} tracked keywords (${pc(l.cov)}), against ${pc(ca.kw?ca.pack/ca.kw:0)} across all ${l.client} locations.`;
+  if(best&&best[4]!=null)p+=` Best map position is ${best[4]} for "${best[0]}".`;
+  if(near.length)p+=` ${near.length} keyword${near.length>1?'s':''} sit at map rank 4–10, just outside the pack, and are the nearest wins.`;
+  if(nr)p+=` ${nr} keyword${nr>1?'s do':' does'} not reach the map top 50.`;
+  $('#p-loc').textContent=p;
+  $('#f-facts').innerHTML=`<span>Reference <b>${esc(l.ref)}</b></span><span>BrightLocal ID <b>${l.id}</b></span><span>Reviews <b>${l.reviews?`${l.reviews} · ${l.rating}★`:'0 on matched listing'}</b></span><span>Rank Tracker <b>3 Oct 2026</b></span><span>Grid <b>2 Oct 2026</b></span>`;
+  const cmp=(v,c,lowBetter,fmt)=>{if(v==null||c==null)return `Client avg ${fmt(c)}`;const better=lowBetter?v<c:v>c, same=Math.abs(v-c)<1e-9;return `Client avg ${fmt(c)} · <span style="color:${same?'var(--ink-3)':better?'var(--good)':'#b03a2e'};font-weight:700">${same?'level':better?'better':'behind'}</span>`};
+  tiles('#t-loc',[
+    ['In the Local Pack',`${l.packN}<span style="font-size:18px;color:var(--ink-3);font-weight:700"> / ${l.kwN}</span>`,cmp(l.cov,ca.kw?ca.pack/ca.kw:null,false,v=>pc(v)),'#0f7a52'],
+    ['Avg map rank',f1(l.lfAvg),cmp(l.lfAvg,ca.lfAvg,true,f1),'#1a56db'],
+    ['Map rank 1–3',l.d[0],`${l.d[1]} more at 4–10`,'#1baf7a'],
+    ['Not in top 50',nr,nr?'keywords with no map ranking':'every keyword ranks','#eb6834'],
+    ['Grid avg rank',l.gridAvg==null?'NR':f1(l.gridAvg),cmp(l.gridAvg,ca.gridAvg,true,f1),'#eda100'],
+    ['Grid points top 3',pc(l.gridTop),`${l.gTop} of ${l.gPts} points`,'#7c8798']]);
+  $('#lg-loc').innerHTML=BANDS.map(b=>`<li><span class="sw" style="background:${b[1]};border-radius:50%"></span>${b[0]}</li>`).join('')+`<li><span class="pill r1" style="min-width:0">2</span>Local Pack position</li>`;
+  $('#ch-loc').innerHTML=rankStrip(sorted);
+  $('#tb-loc-kw').innerHTML='<thead><tr><th>Keyword</th><th>Volume</th><th>Local Pack</th><th>Map rank</th></tr></thead><tbody>'+sorted.map(x=>`<tr><td><span class="pth">${esc(x[0])}</span>${kwf(l,x[0])}</td><td class="dim">${esc(x[1])}</td><td>${pill(x[3])}</td><td>${pill(x[4])}</td></tr>`).join('')+'</tbody>';
+  $('#ch-loc-grid').innerHTML=gridBars(l.grid);
+  $('#h-peers').textContent=peers.length>1?`Against the other ${l.client} locations`:`${l.client} has one location`;
+  const pr=peers.slice().sort((a,b)=>b.cov-a.cov||(a.lfAvg??99)-(b.lfAvg??99));
+  $('#tb-loc-peers').innerHTML='<thead><tr><th>Location</th><th>Pack</th><th>Avg map</th><th>Grid avg</th></tr></thead><tbody>'+pr.map((x,j)=>`<tr class="peer${x.id===l.id?' cur':''}" data-loc="${x.id}" tabindex="0"><td><span class="loc-n">${j+1}. ${esc(x.label)}</span>${tflag(x)}${x.name!==l.name?`<div class="loc-s">${esc(x.name)}</div>`:''}</td><td>${pc(x.cov)}</td><td>${f1(x.lfAvg)}</td><td>${x.gridAvg==null?'NR':f1(x.gridAvg)}</td></tr>`).join('')+'</tbody>';
+  bindLocLinks($('#tb-loc-peers'));
+  $('#tb-loc-peers').querySelectorAll('tr.peer').forEach(tr=>tr.onkeydown=e=>{if(e.key==='Enter')goLoc(+tr.dataset.loc)});
+}
+function rErrors(){
+  const ls=DATA.filter(l=>l.flags.length&&(!S.client||l.client===S.client));
+  const ex=ls.filter(l=>l.sev==='crit'), kwAff=ex.reduce((a,l)=>a+l.kwN,0)+[...KWFLAG.keys()].filter(k=>!ex.some(l=>k.startsWith(l.id+'|'))&&ls.some(l=>k.startsWith(l.id+'|'))).length;
+  $('#h-err').textContent=`${ex.length} location${ex.length===1?' can':'s can'}\'t be tracked until verified, and ${ls.length-ex.length} more need fixes`;
+  $('#p-err').textContent=`Each flag below was checked against Business Profile Manager and the BrightLocal report settings on 5 October 2026. Every location stays in the figures; the flags explain why some numbers look the way they do.`;
+  tiles('#t-err',[['Not verified',ls.filter(l=>l.sev==='crit').length,'nothing trackable until verified','#b03a2e'],['Listing issues',ls.filter(l=>l.sev==='high').length,'duplicate or competing listings','#eb6834'],['Minor checks',ls.filter(l=>l.sev==='low'||l.sev==='med').length,'edits, unclaimed duplicates, listing checks','#7c8798']]);
+  const ord={crit:0,high:1,med:2,low:3};
+  const rows=ls.flatMap(l=>l.flags.map(f=>({l,f}))).sort((a,b)=>ord[a.f.sev]-ord[b.f.sev]||a.l.label.localeCompare(b.l.label));
+  $('#tb-err').innerHTML='<thead><tr><th>Location</th><th style="text-align:left">Issue</th><th style="text-align:left">What the data shows</th><th style="text-align:left">What to check</th></tr></thead><tbody>'+
+    (rows.map(({l,f})=>`<tr class="sev-${f.sev}"><td>${'<button class="loclink" data-loc="'+l.id+'">'+esc(l.label)+'</button>'}<div class="loc-s">${esc(l.name)}</div></td><td class="l"><span class="pill ${SEV[f.sev][1]}">${esc(f.type)}</span></td><td class="wrap">${esc(f.show)}</td><td class="wrap">${esc(f.check)}</td></tr>`).join('')||'<tr><td colspan="4" class="dim">No tracking errors for this client.</td></tr>')+'</tbody>';
+  bindLocLinks($('#tb-err'));
+}
+const QCATS=['Rank Tracker setup','Google profiles','Keywords','Citations','Reviews','Reporting'];
+const Q={db:null,user:null,rows:null,state:'loading',filter:'open',cat:'',drafts:{},saving:{},err:'',names:{},canWrite:true,unsub:null};
+$('#f-qcat').innerHTML+=QCATS.map(c=>`<option>${esc(c)}</option>`).join('');
+$('#nq-cat').innerHTML=QCATS.map(c=>`<option>${esc(c)}</option>`).join('');
+$('#nq-loc').innerHTML+=byOrder.map(l=>`<option value="${l.id}">${esc(l.label)} · ${esc(l.name)}</option>`).join('');
+const fmtDate=s=>{try{return new Date(s).toLocaleDateString('en-US',{day:'numeric',month:'short',year:'numeric'})}catch(e){return ''}};
+async function qInit(){
+  try{Q.db=await claude.use('db')}catch(e){Q.db=null}
+  try{Q.user=await claude.use('user')}catch(e){Q.user=null}
+  if(!Q.db){Q.state='unavailable';rQ();return}
+  try{const c=Q.user&&Q.user.can?await Q.user.can('data.write'):null;Q.canWrite=c!==false}catch(e){}
+  $('#addq-wrap').hidden=!Q.canWrite;
+  Q.unsub=Q.db.collection('questions').orderBy('order').onSnapshot(s=>{Q.rows=s.docs.map(d=>({id:d.id,...d.data()}));Q.state='ready';qNames();rQ();qBadge()},e=>{Q.state='error';Q.err=e&&e.code||'unavailable';rQ()});
+}
+async function qNames(){if(!Q.user||!Q.user.profiles)return;const ids=[...new Set(Q.rows.map(r=>r.answeredBy).filter(Boolean))];if(!ids.length)return;try{const ps=await Q.user.profiles(ids);ids.forEach(id=>Q.names[id]=(ps[id]&&ps[id].name)||'');rQ()}catch(e){}}
+const qInScope=r=>!S.client||!(r.locs&&r.locs.length)||r.locs.some(id=>{const l=DATA.find(x=>x.id===id);return l&&l.client===S.client});
+function qBadge(){const n=(Q.rows||[]).filter(r=>r.status!=='answered'&&qInScope(r)).length;const b=$('#nav-q');b.hidden=!n;b.textContent=n}
+function sbNums(){const L=DATA.filter(l=>!S.client||l.client===S.client);const nc=new Set(L.map(l=>l.client)).size;$('#sb-count').textContent=`${L.length} location${L.length===1?'':'s'}, ${nc} client${nc===1?'':'s'}`;const e=L.filter(l=>l.flags.length).length;const b=$('#nav-err');b.hidden=!e;b.textContent=e;qBadge()}
+function rQ(){
+  if(S.sec!=='questions')return;
+  document.querySelectorAll('#seg-q button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.f===Q.filter));
+  const box=$('#qlist');
+  if(Q.state==='loading'){box.innerHTML='<div class="q-empty">Loading questions…</div>';return}
+  if(Q.state==='unavailable'){box.innerHTML='<div class="q-empty">Questions are stored with the dashboard and need you to be signed in to claude.ai to load. Open the dashboard while signed in to see and answer them.</div>';return}
+  if(Q.state==='error'){box.innerHTML=`<div class="q-empty">Questions could not load (${esc(Q.err)}). Reload the page to try again.</div>`;return}
+  const all=Q.rows||[];
+  const open=all.filter(r=>r.status!=='answered').length;
+  $('#h-q').textContent=all.length?`${open} open question${open===1?'':'s'}, ${all.length-open} answered`:'No questions yet';
+  let rows=all.filter(r=>Q.filter==='all'||(Q.filter==='answered'?r.status==='answered':r.status!=='answered')).filter(r=>!Q.cat||r.cat===Q.cat).filter(r=>!S.client||!(r.locs&&r.locs.length)||r.locs.some(id=>{const l=DATA.find(x=>x.id===id);return l&&l.client===S.client}));
+  if(!all.length){box.innerHTML='<div class="q-empty">No questions have been added yet. '+(Q.canWrite?'Use "Add a question" below to start the list.':'')+'</div>';return}
+  if(!rows.length){box.innerHTML=`<div class="q-empty">Nothing ${Q.filter==='answered'?'answered':'open'} for this filter.</div>`;return}
+  const active=document.activeElement&&document.activeElement.dataset&&document.activeElement.dataset.qid;
+  box.innerHTML=rows.map(r=>{const n=all.indexOf(r)+1,done=r.status==='answered',locs=(r.locs||[]).map(id=>DATA.find(x=>x.id===id)).filter(Boolean);
+    return `<article class="q${done?' done':''}" data-q="${esc(r.id)}">
+      <div class="q-top"><span class="q-num">Q${n}</span><span class="pill neutral">${esc(r.cat||'General')}</span>${r.audience?`<span class="pill ${r.audience==='Client'?'wrn':'r2'}">Ask: ${esc(r.audience)}</span>`:''}${done?'<span class="pill r1">Answered</span>':''}</div>
+      <h4>${esc(r.text||'')}</h4>
+      ${r.context?`<p class="ctx">${esc(r.context)}</p>`:''}
+      ${locs.length?`<div class="chips">${locs.map(l=>`<button class="loclink" data-loc="${l.id}">${esc(l.label)} · ${esc(l.name)}</button>`).join('')}</div>`:''}
+      <div class="ans">${done?`<div class="answered">${esc(r.answer||'')}</div><div class="row"><span class="who">Answered${r.answeredBy&&Q.names[r.answeredBy]?' by '+esc(Q.names[r.answeredBy]):''}${r.answeredAt?' · '+fmtDate(r.answeredAt):''}</span>${Q.canWrite?`<button class="btn ghost" data-act="reopen" data-qid="${esc(r.id)}">Reopen</button>`:''}</div>`:
+      (Q.canWrite?`<textarea data-qid="${esc(r.id)}" id="qa-${esc(r.id)}" aria-label="Answer for Q${n}" placeholder="Type the answer or decision">${esc(Q.drafts[r.id]??'')}</textarea><div class="row"><button class="btn" data-act="answer" data-qid="${esc(r.id)}"${Q.saving[r.id]?' disabled':''}>${Q.saving[r.id]?'Saving…':'Save answer'}</button><span class="q-status" id="qs-${esc(r.id)}"></span></div>`:'<span class="q-status">Waiting for an answer.</span>')}</div>
+    </article>`}).join('');
+  bindLocLinks(box);
+  box.querySelectorAll('textarea[data-qid]').forEach(ta=>ta.oninput=()=>{Q.drafts[ta.dataset.qid]=ta.value});
+  if(active){const el=document.getElementById('qa-'+active);if(el){el.focus();el.selectionStart=el.selectionEnd=el.value.length}}
+  box.querySelectorAll('button[data-act]').forEach(b=>b.onclick=()=>qAct(b.dataset.act,b.dataset.qid));
+}
+async function qAct(act,id){
+  const ref=Q.db.doc('questions/'+id);let by=null;try{by=Q.user&&Q.user.id?await Q.user.id():null}catch(e){}
+  if(act==='answer'){const v=(Q.drafts[id]||'').trim();const st=document.getElementById('qs-'+id);if(!v){if(st)st.textContent='Type an answer first.';return}
+    Q.saving[id]=true;rQ();try{await ref.update({status:'answered',answer:v,answeredBy:by,answeredAt:new Date().toISOString()});delete Q.drafts[id]}catch(e){Q.saving[id]=false;rQ();const s2=document.getElementById('qs-'+id);if(s2)s2.textContent=e&&e.code==='invalid_argument'?'This question was removed.':'Could not save. You may not have edit access to this dashboard.';return}
+    Q.saving[id]=false;rQ()}
+  if(act==='reopen'){const r=Q.rows.find(x=>x.id===id);Q.drafts[id]=r&&r.answer||'';try{await ref.update({status:'open'})}catch(e){}}
+}
+document.querySelectorAll('#seg-q button').forEach(b=>b.onclick=()=>{Q.filter=b.dataset.f;rQ()});
+$('#f-qcat').onchange=e=>{Q.cat=e.target.value;rQ()};
+$('#addq').addEventListener('submit',async e=>{e.preventDefault();const text=$('#nq-text').value.trim();if(!text||!Q.db)return;const st=$('#nq-status');st.textContent='Adding…';
+  const max=(Q.rows||[]).reduce((a,r)=>Math.max(a,r.order||0),0);const loc=$('#nq-loc').value;
+  try{await Q.db.collection('questions').add({text,context:$('#nq-ctx').value.trim(),cat:$('#nq-cat').value,audience:'',locs:loc?[+loc]:[],status:'open',answer:'',order:max+1,createdAt:new Date().toISOString()});$('#addq').reset();st.textContent='Added.';Q.filter='open'}catch(x){st.textContent='Could not add the question. You may not have edit access to this dashboard.'}});
+function render(){
+  const ls=sel();
+  sbNums();
+  $('#sb-client').textContent=S.client||'All Clients';
+  $('#m-locs').textContent=ls.length;
+  document.querySelectorAll('#nav button').forEach(b=>b.setAttribute('aria-current',b.dataset.sec===S.sec));
+  document.querySelectorAll('.content > section').forEach(s=>s.hidden=s.id!=='sec-'+S.sec);
+  ({overview:rOverview,errors:rErrors,questions:rQ,location:rLocation,pack:rPack,map:rMap,grid:rGrid,keywords:rKw,notes:()=>{}})[S.sec](ls);
+}
+document.querySelectorAll('#nav button').forEach(b=>b.onclick=()=>{S.sec=b.dataset.sec;try{localStorage.setItem('dra-lr-sec',S.sec)}catch(e){};render();window.scrollTo(0,0)});
+document.querySelectorAll('#seg-kw button').forEach(b=>b.onclick=()=>{S.kwf=b.dataset.f;render()});
+$('#f-client').onchange=e=>{S.client=e.target.value;render()};
+$('#f-q').oninput=e=>{S.q=e.target.value.trim();render()};
+
+$('#f-loc').onchange=e=>goLoc(+e.target.value);
+render();
+qInit();
+(async()=>{
+  let dl=null;try{dl=await claude.use('downloads')}catch(e){}
+  const btn=$('#dl-btn'),st=$('#dl-status');
+  if(!dl||!window.XLSX){return}
+  btn.hidden=false;
+  const upd=()=>{$('#dl-label').textContent=S.client?`Download ${S.client} (Excel)`:'Download Excel'};upd();
+  $('#f-client').addEventListener('change',upd);
+  btn.onclick=async()=>{
+    btn.disabled=true;st.textContent='Building workbook…';
+    try{
+      const L=byOrder.filter(l=>!S.client||l.client===S.client);
+      const wb=XLSX.utils.book_new();
+      const add=(name,rows,widths)=>{const ws=XLSX.utils.aoa_to_sheet(rows);ws['!cols']=widths.map(w=>({wch:w}));if(rows.length>1)ws['!autofilter']={ref:XLSX.utils.encode_range({s:{r:0,c:0},e:{r:rows.length-1,c:rows[0].length-1}})};ws['!freeze']={xSplit:0,ySplit:1};XLSX.utils.book_append_sheet(wb,ws,name)};
+      const r1=x=>x==null?null:Math.round(x*10)/10;
+      add('About',[['Local Pack and Map Rankings — October 2026 Baseline'],[''],['Scope',S.client||'All clients'],['Locations',L.length],['Source','BrightLocal Rank Tracker (3 Oct 2026, Google Local Pack and Local Finder, depth 50) and Local Search Grid (2 Oct 2026)'],['Listing issues','Checked against Google Business Profile Manager, 5 Oct 2026'],['Prepared','5 Oct 2026, Digital Reach Agency'],['Downloaded',new Date().toLocaleString('en-US')],[''],['Map rank','Position in Google Local Finder (the full map list). Blank = not in the top 50.'],['Local Pack','Position in Google\'s three-business map pack. Blank = not in the pack.'],['Grid avg rank','Mean rank across all grid points and keywords; lower is better. Blank = not ranking at any point.']],[18,110]);
+      add('Locations',[['Client','Location','City','State','BrightLocal ref','BrightLocal ID','Keywords tracked','Keywords in Local Pack','Local Pack coverage','Avg map rank','Map rank 1-3','Map rank 4-10','Map rank 11-20','Map rank 21-50','Not in top 50','Grid avg rank','Grid points in top 3','Grid points checked','Grid top 3 share','Reviews','Rating','Listing issue']].concat(L.map(l=>[l.client,l.name,l.city,l.st,l.ref,l.id,l.kwN,l.packN,Math.round(l.cov*1000)/1000,r1(l.lfAvg),l.d[0],l.d[1],l.d[2],l.d[3],l.d[4],l.gridAvg,l.gTop,l.gPts,Math.round(l.gridTop*1000)/1000,l.reviews,l.reviews?l.rating:null,l.flags.map(f=>f.type).join('; ')||null])),[26,28,16,7,24,11,10,12,12,11,9,9,10,10,10,11,11,11,11,9,8,30]);
+      add('Rank Tracker keywords',[['Client','Location','City','State','Keyword','Monthly volume','Local Pack position','Map rank (Local Finder)']].concat(L.flatMap(l=>l.kw.map(x=>[l.client,l.name,l.city,l.st,x[0],x[1],x[3],x[4]]))),[26,28,16,7,42,10,12,14]);
+      add('Grid keywords',[['Client','Location','City','State','Keyword','Avg map rank','Points rank 1-3','Points rank 4-10','Points 11+ / not ranking','Points checked']].concat(L.flatMap(l=>l.grid.map(g=>[l.client,l.name,l.city,l.st,g[0],g[1],g[2],g[3],g[4],g[2]+g[3]+g[4]]))),[26,28,16,7,40,11,11,11,13,11]);
+      const iss=L.flatMap(l=>l.flags.map(f=>[l.client,l.name,l.city,l.st,f.type,f.show,f.check]));
+      add('Listing issues',[['Client','Location','City','State','Issue','What the data shows','What to check']].concat(iss),[26,28,16,7,28,90,70]);
+      if(Q.rows&&Q.rows.length){const qs=Q.rows.filter(qInScope);add('Questions',[['#','Question','Topic','Ask','Locations','Status','Answer','Context']].concat(qs.map((r,i)=>[i+1,r.text,r.cat,r.audience,(r.locs||[]).map(id=>{const l=DATA.find(x=>x.id===id);return l?l.label:''}).join('; '),r.status==='answered'?'Answered':'Open',r.answer||null,r.context])),[4,60,18,10,30,10,50,80])}
+      const buf=XLSX.write(wb,{bookType:'xlsx',type:'array'});
+      const slug=(S.client||'All-Clients').replace(/[^A-Za-z0-9]+/g,'-').replace(/^-|-$/g,'');
+      await dl.save({filename:`Local-Pack-Map-Rankings_${slug}_Oct-2026-Baseline.xlsx`,data:buf});
+      st.textContent='Saved.';
+    }catch(e){const c=e&&e.code;st.textContent=c==='declined'?'Download cancelled.':c==='rate_limited'?'A save prompt is already open. Try again in a moment.':(c==='unavailable'||c==='not_granted'||c==='capability_disabled'||c==='capability_removed')?'Downloads are not available in this view.':'The download did not complete. Try again.';if(c==='unavailable'||c==='not_granted')btn.hidden=true}
+    btn.disabled=false;setTimeout(()=>{if(st.textContent==='Saved.')st.textContent=''},4000);
+  };
+})();
+</script>
+
+</body></html>
