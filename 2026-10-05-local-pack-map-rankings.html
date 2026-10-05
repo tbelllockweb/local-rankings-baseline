@@ -456,7 +456,7 @@ const clients=[...new Set(DATA.map(l=>l.client))].sort();
 $('#f-client').innerHTML+=clients.map(c=>`<option>${esc(c)}</option>`).join('');
 
 const S={excl:false,loc:null,client:'',q:'',sec:'overview',open:new Set(),kwf:'all',sort:{map:{k:'cov',d:-1},kw:{k:'vol',d:-1}}};
-try{const s=localStorage.getItem('dra-lr-sec');if(s&&document.getElementById('sec-'+s))S.sec=s;const L=+localStorage.getItem('dra-lr-loc');if(DATA.some(l=>l.id===L))S.loc=L}catch(e){}
+try{const s=localStorage.getItem('dra-lr-sec');if(s&&s!=='questions'&&document.getElementById('sec-'+s))S.sec=s;const L=+localStorage.getItem('dra-lr-loc');if(DATA.some(l=>l.id===L))S.loc=L}catch(e){}
 try{const m=location.hash.match(/^#loc-(\d+)$/);if(m&&DATA.some(l=>l.id===+m[1])){S.loc=+m[1];S.sec='location'}}catch(e){}
 const byOrder=DATA.slice().sort((a,b)=>a.client.localeCompare(b.client)||a.label.localeCompare(b.label));
 function goLoc(id){S.loc=id;S.sec='location';try{localStorage.setItem('dra-lr-loc',id);localStorage.setItem('dra-lr-sec','location')}catch(e){};render();window.scrollTo(0,0)}
