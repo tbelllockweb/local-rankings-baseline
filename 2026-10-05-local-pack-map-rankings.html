@@ -220,13 +220,13 @@ td.wrap{white-space:normal;text-align:left;min-width:220px;max-width:340px;font-
     <ul class="sb-nav" id="nav">
       <li><button data-sec="overview" aria-current="true"><span class="idx">01</span>Overview</button></li>
       <li><button data-sec="errors"><span class="idx">02</span>Listing Issues<span class="nav-badge" id="nav-err"></span></button></li>
-      <li><button data-sec="questions"><span class="idx">03</span>Open Questions<span class="nav-badge" id="nav-q" style="background:#1a56db" hidden></span></button></li>
-      <li><button data-sec="location"><span class="idx">04</span>Location Detail</button></li>
-      <li><button data-sec="pack"><span class="idx">05</span>Local Pack</button></li>
-      <li><button data-sec="map"><span class="idx">06</span>Map Rankings</button></li>
-      <li><button data-sec="grid"><span class="idx">07</span>Local Search Grid</button></li>
-      <li><button data-sec="keywords"><span class="idx">08</span>Keywords</button></li>
-      <li><button data-sec="notes"><span class="idx">09</span>Reading This Data</button></li>
+      <li hidden><button data-sec="questions"><span class="idx">03</span>Open Questions<span class="nav-badge" id="nav-q" style="background:#1a56db" hidden></span></button></li>
+      <li><button data-sec="location"><span class="idx">03</span>Location Detail</button></li>
+      <li><button data-sec="pack"><span class="idx">04</span>Local Pack</button></li>
+      <li><button data-sec="map"><span class="idx">05</span>Map Rankings</button></li>
+      <li><button data-sec="grid"><span class="idx">06</span>Local Search Grid</button></li>
+      <li><button data-sec="keywords"><span class="idx">07</span>Keywords</button></li>
+      <li><button data-sec="notes"><span class="idx">08</span>Reading This Data</button></li>
     </ul>
     <div class="sb-foot">BrightLocal: Rank Tracker &amp; Local Search Grid<br><span id="sb-count">40 locations, 6 clients</span><br>Prepared 5 Oct 2026</div>
   </nav>
@@ -737,7 +737,7 @@ $('#f-q').oninput=e=>{S.q=e.target.value.trim();render()};
 
 $('#f-loc').onchange=e=>goLoc(+e.target.value);
 render();
-qInit();
+/* Open Questions removed from this published copy */
 (async()=>{
   let dl=null;try{dl=await claude.use('downloads')}catch(e){}
   const btn=$('#dl-btn'),st=$('#dl-status');
