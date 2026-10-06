@@ -1,6 +1,16 @@
-<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Local Pack and Map Rankings</title>
+<style>body{margin:0}</style>
+</head>
+<body>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Markazi+Text:wght@500;600&family=Mulish:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <style>
@@ -40,13 +50,15 @@ button{font:inherit;cursor:pointer}
 .sb-nav .idx{font-family:var(--f-mono);font-size:10px;color:#6d87a5;width:14px}
 .sb-nav button[aria-current="true"] .idx{color:#7fb0f5}
 .sb-foot{padding:14px 22px 0;border-top:1px solid rgba(255,255,255,.13);font-size:11px;color:#8ba3bf;line-height:1.5}
-.download-btn{position:absolute;top:26px;right:34px;background:#fff;color:var(--navy);border:0;padding:9px 16px;border-radius:7px;font-family:var(--f-body);font-size:12.5px;font-weight:700;cursor:pointer;box-shadow:0 1px 4px rgba(0,20,50,.28);display:inline-flex;align-items:center;gap:8px;transition:background .12s,transform .12s}
+.dl-group{position:absolute;top:26px;right:34px;display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.dl-group[hidden]{display:none!important}
+.download-btn{background:#fff;color:var(--navy);border:0;padding:9px 16px;border-radius:7px;font-family:var(--f-body);font-size:12.5px;font-weight:700;cursor:pointer;box-shadow:0 1px 4px rgba(0,20,50,.28);display:inline-flex;align-items:center;gap:8px;transition:background .12s,transform .12s}
 .download-btn:hover{background:#e9f0fb}
 .download-btn:active{transform:translateY(1px)}
 .download-btn svg{width:14px;height:14px;flex:0 0 auto}
 .download-btn[disabled]{opacity:.6;cursor:default}
-.dl-status{position:absolute;top:64px;right:34px;font-family:var(--f-mono);font-size:11px;color:#b6cde8;text-align:right;max-width:260px}
-.topbar h1{padding-right:180px}
+.dl-status{position:absolute;top:68px;right:34px;font-family:var(--f-mono);font-size:11px;color:#b6cde8;text-align:right;max-width:260px}
+.topbar h1{padding-right:420px}
 .main{flex:1;min-width:0;display:flex;flex-direction:column}
 .topbar{position:relative;background:linear-gradient(112deg,var(--navy) 0%,var(--navy-2) 62%,#0a4a86 100%);color:#fff;padding:26px 34px 24px}
 .topbar h1{font-family:var(--f-display);font-size:34px;font-weight:600;letter-spacing:.005em}
@@ -205,9 +217,27 @@ td.wrap{white-space:normal;text-align:left;min-width:220px;max-width:340px;font-
   .sb-foot{display:none}
   .content,.topbar{padding-left:18px;padding-right:18px}
   .topbar h1{font-size:27px;padding-right:0}
-  .download-btn{position:static;margin-top:14px}
+  .dl-group{position:static;margin-top:14px;justify-content:flex-start}
   .dl-status{position:static;text-align:left;margin-top:6px;max-width:none}
 }
+.rk{font-family:var(--f-mono);font-size:12px;color:var(--ink-3);text-align:left!important}
+#tb-all td.l .loc-s{white-space:nowrap}
+#tb-all .pth{max-width:190px}
+body.pdf-mode .c-spread,body.pdf-mode .c-client{display:none}
+body.pdf-mode #tb-all .pth{max-width:110px;font-size:11px}
+body.pdf-mode #tb-all th{white-space:normal}
+body.pdf-mode #tb-all td.l .loc-s{white-space:normal}
+body.pdf-mode #tb-all .loc-s span{display:block}
+body.pdf-mode #tb-all th,body.pdf-mode #tb-all td{padding:7px 8px;font-size:12px}
+.rk b{color:var(--ink);font-size:13px;font-weight:600}
+tr.grp td{background:var(--surface-2)!important;text-align:left;font-size:11px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--ink-2);padding:7px 13px}
+.sec-dl{margin-left:auto}
+/* PDF capture mode: everything expanded, fixed width, no interactive chrome */
+body.pdf-mode .content{width:1180px;max-width:none}
+body.pdf-mode .tbl-scroll,body.pdf-mode .tbl-scroll.tall,body.pdf-mode .chart-wrap{max-height:none!important;overflow:visible!important}
+body.pdf-mode .controls,body.pdf-mode .disclose,body.pdf-mode .sec-dl,body.pdf-mode .locbar,body.pdf-mode th .arr,body.pdf-mode #go-err{display:none!important}
+body.pdf-mode thead th{position:static}
+body.pdf-mode tbody tr:hover td{background:none}
 </style>
 
 <div class="shell">
@@ -219,14 +249,14 @@ td.wrap{white-space:normal;text-align:left;min-width:220px;max-width:340px;font-
     </div>
     <ul class="sb-nav" id="nav">
       <li><button data-sec="overview" aria-current="true"><span class="idx">01</span>Overview</button></li>
-      <li><button data-sec="errors"><span class="idx">02</span>Listing Issues<span class="nav-badge" id="nav-err"></span></button></li>
-      <li hidden><button data-sec="questions"><span class="idx">03</span>Open Questions<span class="nav-badge" id="nav-q" style="background:#1a56db" hidden></span></button></li>
-      <li><button data-sec="location"><span class="idx">03</span>Location Detail</button></li>
-      <li><button data-sec="pack"><span class="idx">04</span>Local Pack</button></li>
-      <li><button data-sec="map"><span class="idx">05</span>Map Rankings</button></li>
-      <li><button data-sec="grid"><span class="idx">06</span>Local Search Grid</button></li>
-      <li><button data-sec="keywords"><span class="idx">07</span>Keywords</button></li>
-      <li><button data-sec="notes"><span class="idx">08</span>Reading This Data</button></li>
+      <li><button data-sec="all"><span class="idx">02</span>All Locations</button></li>
+      <li><button data-sec="errors"><span class="idx">03</span>Listing Issues<span class="nav-badge" id="nav-err"></span></button></li>
+      <li><button data-sec="location"><span class="idx">04</span>Location Detail</button></li>
+      <li><button data-sec="pack"><span class="idx">05</span>Local Pack</button></li>
+      <li><button data-sec="map"><span class="idx">06</span>Map Rankings</button></li>
+      <li><button data-sec="grid"><span class="idx">07</span>Local Search Grid</button></li>
+      <li><button data-sec="keywords"><span class="idx">08</span>Keywords</button></li>
+      <li><button data-sec="notes"><span class="idx">09</span>Reading This Data</button></li>
     </ul>
     <div class="sb-foot">BrightLocal: Rank Tracker &amp; Local Search Grid<br><span id="sb-count">40 locations, 6 clients</span><br>Prepared 5 Oct 2026</div>
   </nav>
@@ -234,7 +264,11 @@ td.wrap{white-space:normal;text-align:left;min-width:220px;max-width:340px;font-
   <div class="main">
     <header class="topbar">
       <h1>Local Pack and Map Rankings<br>October 2026 Baseline</h1>
-      <button class="download-btn" id="dl-btn" type="button" hidden><svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 2v8m0 0L4.5 6.5M8 10l3.5-3.5M2.5 13.5h11" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg><span id="dl-label">Download Excel</span></button>
+      <div class="dl-group" id="dl-group" hidden>
+        <button class="download-btn" id="pdf-btn" type="button"><svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 2v8m0 0L4.5 6.5M8 10l3.5-3.5M2.5 13.5h11" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Download PDF</span></button>
+        <button class="download-btn" id="csv-btn" type="button"><svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 2v8m0 0L4.5 6.5M8 10l3.5-3.5M2.5 13.5h11" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Download CSV</span></button>
+        <button class="download-btn" id="dl-btn" type="button"><svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 2v8m0 0L4.5 6.5M8 10l3.5-3.5M2.5 13.5h11" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg><span id="dl-label">Download Excel</span></button>
+      </div>
       <div class="dl-status" id="dl-status" role="status"></div>
       <div class="meta">
         <span>Locations <b id="m-locs">40</b></span>
@@ -275,6 +309,19 @@ td.wrap{white-space:normal;text-align:left;min-width:220px;max-width:340px;font-
         </div>
       </section>
 
+      <section id="sec-all" hidden>
+        <div class="sec-head"><h2 id="h-all"></h2><p id="p-all"></p></div>
+        <div class="controls">
+          <div class="seg" id="seg-all">
+            <button aria-pressed="true" data-g="0">One list</button>
+            <button aria-pressed="false" data-g="1">Group by client</button>
+          </div>
+          <button class="btn ghost sec-dl" id="all-csv" type="button" hidden>Download this table (CSV)</button>
+        </div>
+        <div class="tbl-scroll tall"><table id="tb-all"></table></div>
+        <p class="card-note" style="margin:12px 0 0">Portfolio rank orders all 40 locations by Local Pack coverage, then average map rank, then grid average. Brand rank uses the same order within each client. Both are fixed to the 3 October baseline, so filtering or re-sorting the table does not change them. Select a location to open its detail page.</p>
+      </section>
+
       <section id="sec-errors" hidden>
         <div class="sec-head"><h2 id="h-err"></h2><p id="p-err"></p></div>
         <div class="tiles" id="t-err"></div>
@@ -283,31 +330,6 @@ td.wrap{white-space:normal;text-align:left;min-width:220px;max-width:340px;font-
           <p class="card-note">Red: Google profile not verified, so nothing can be tracked. Orange: duplicate or competing listings that hold rankings back. Amber: smaller listing checks. Every location stays in the dashboard figures.</p>
           <div class="tbl-scroll"><table id="tb-err"></table></div>
         </div>
-      </section>
-
-      <section id="sec-questions" hidden>
-        <div class="sec-head"><h2 id="h-q">Open questions</h2><p id="p-q">Decisions and confirmations needed from the DRA team and clients before the first monthly comparison. Answers save to this dashboard for everyone who can edit it.</p></div>
-        <div class="controls">
-          <div class="seg" id="seg-q">
-            <button aria-pressed="true" data-f="open">Open</button>
-            <button aria-pressed="false" data-f="answered">Answered</button>
-            <button aria-pressed="false" data-f="all">All</button>
-          </div>
-          <div class="field"><label for="f-qcat">Topic</label><select id="f-qcat"><option value="">All topics</option></select></div>
-        </div>
-        <div class="qlist" id="qlist"><div class="q-empty">Loading questions…</div></div>
-        <details class="disclose card" id="addq-wrap" style="margin-top:20px" hidden>
-          <summary>Add a question</summary>
-          <form class="addq" id="addq">
-            <label for="nq-text">Question<input id="nq-text" required maxlength="300" placeholder="What needs deciding or confirming?"></label>
-            <label for="nq-ctx">Context<textarea id="nq-ctx" rows="2" maxlength="800" placeholder="What prompted it, and what it affects"></textarea></label>
-            <div class="grid2">
-              <label for="nq-cat">Topic<select id="nq-cat"></select></label>
-              <label for="nq-loc">Location<select id="nq-loc"><option value="">All locations</option></select></label>
-            </div>
-            <div class="row"><button class="btn" type="submit">Add question</button><span class="q-status" id="nq-status"></span></div>
-          </form>
-        </details>
       </section>
 
       <section id="sec-location" hidden>
@@ -388,6 +410,7 @@ td.wrap{white-space:normal;text-align:left;min-width:220px;max-width:340px;font-
             <button aria-pressed="false" data-f="top3">Map top 3</button>
             <button aria-pressed="false" data-f="nr">Not in top 50</button>
           </div>
+          <button class="btn ghost sec-dl" id="kw-csv" type="button" hidden>Download keywords (CSV)</button>
         </div>
         <div class="tbl-scroll tall"><table id="tb-kw"></table></div>
       </section>
@@ -453,10 +476,14 @@ const SEV={crit:['Not verified','err'],high:['Listing issue','err'],med:['Check 
 const tflag=l=>l.sev?`<span class="pill ${SEV[l.sev][1]} tflag" title="${esc(l.flags.map(f=>f.type).join('; '))}">${SEV[l.sev][0]}</span>`:'';
 const kwf=(l,k)=>KWFLAG.has(l.id+'|'+k)?` <span class="pill wrn tflag" title="Grid ranks this keyword ${KWFLAG.get(l.id+'|'+k)}">tracker miss</span>`:'';
 const clients=[...new Set(DATA.map(l=>l.client))].sort();
+const rankCmp=(a,b)=>b.cov-a.cov||(a.lfAvg??99)-(b.lfAvg??99)||(a.gridAvg??99)-(b.gridAvg??99)||a.label.localeCompare(b.label);
+DATA.slice().sort(rankCmp).forEach((l,i)=>l.rkAll=i+1);
+clients.forEach(c=>DATA.filter(l=>l.client===c).sort(rankCmp).forEach((l,i,a)=>{l.rkCl=i+1;l.clN=a.length}));
+const bestKw=l=>{const k=l.kw.filter(x=>x[4]!=null).sort((a,b)=>a[4]-b[4]||volN(b[1])-volN(a[1]))[0];return k?{kw:k[0],r:k[4]}:null};
 $('#f-client').innerHTML+=clients.map(c=>`<option>${esc(c)}</option>`).join('');
 
-const S={excl:false,loc:null,client:'',q:'',sec:'overview',open:new Set(),kwf:'all',sort:{map:{k:'cov',d:-1},kw:{k:'vol',d:-1}}};
-try{const s=localStorage.getItem('dra-lr-sec');if(s&&s!=='questions'&&document.getElementById('sec-'+s))S.sec=s;const L=+localStorage.getItem('dra-lr-loc');if(DATA.some(l=>l.id===L))S.loc=L}catch(e){}
+const S={excl:false,loc:null,client:'',q:'',sec:'overview',open:new Set(),kwf:'all',sort:{map:{k:'cov',d:-1},kw:{k:'vol',d:-1},all:{k:'rkAll',d:1}},grp:false};
+try{const s=localStorage.getItem('dra-lr-sec');if(s&&document.getElementById('sec-'+s))S.sec=s;const L=+localStorage.getItem('dra-lr-loc');if(DATA.some(l=>l.id===L))S.loc=L}catch(e){}
 try{const m=location.hash.match(/^#loc-(\d+)$/);if(m&&DATA.some(l=>l.id===+m[1])){S.loc=+m[1];S.sec='location'}}catch(e){}
 const byOrder=DATA.slice().sort((a,b)=>a.client.localeCompare(b.client)||a.label.localeCompare(b.label));
 function goLoc(id){S.loc=id;S.sec='location';try{localStorage.setItem('dra-lr-loc',id);localStorage.setItem('dra-lr-sec','location')}catch(e){};render();window.scrollTo(0,0)}
@@ -499,7 +526,7 @@ const legendBands=id=>{$(id).innerHTML=BANDS.map(b=>`<li><span class="sw" style=
 const minibar=d=>{const t=d.reduce((a,b)=>a+b,0)||1;return `<span class="minibar" title="${BANDS.map((b,i)=>b[0]+': '+d[i]).join(' · ')}">${d.map((v,i)=>v?`<i style="width:${v/t*100}%;background:${BANDS[i][2]}"></i>`:'').join('')}</span>`};
 
 function sortRows(rows,s,get){return rows.slice().sort((a,b)=>{const x=get(a,s.k),y=get(b,s.k);if(x==null&&y==null)return 0;if(x==null)return 1;if(y==null)return -1;return (typeof x==='string'?x.localeCompare(y):x-y)*s.d})}
-function thead(cols,s){return '<thead><tr>'+cols.map(c=>c.k?`<th class="sortable${c.l?' l':''}" data-k="${c.k}"${s.k===c.k?` aria-sort="${s.d>0?'ascending':'descending'}"`:''} style="${c.l?'text-align:left':''}">${c.t}<span class="arr">${s.k===c.k?(s.d>0?'▲':'▼'):'▲▼'}</span></th>`:`<th style="${c.l?'text-align:left':''}">${c.t}</th>`).join('')+'</tr></thead>'}
+function thead(cols,s){return '<thead><tr>'+cols.map(c=>c.k?`<th class="sortable${c.l?' l':''} ${c.c||''}" data-k="${c.k}"${s.k===c.k?` aria-sort="${s.d>0?'ascending':'descending'}"`:''} style="${c.l?'text-align:left':''}">${c.t}<span class="arr">${s.k===c.k?(s.d>0?'▲':'▼'):'▲▼'}</span></th>`:`<th class="${c.c||''}" style="${c.l?'text-align:left':''}">${c.t}</th>`).join('')+'</tr></thead>'}
 function bindSort(tbl,key,lowFirst){tbl.querySelectorAll('th.sortable').forEach(th=>th.onclick=()=>{const s=S.sort[key],k=th.dataset.k;if(s.k===k)s.d*=-1;else{s.k=k;s.d=lowFirst.includes(k)?1:-1}render()})}
 
 function rOverview(ls){
@@ -651,6 +678,22 @@ function rLocation(){
   bindLocLinks($('#tb-loc-peers'));
   $('#tb-loc-peers').querySelectorAll('tr.peer').forEach(tr=>tr.onkeydown=e=>{if(e.key==='Enter')goLoc(+tr.dataset.loc)});
 }
+function rAll(ls){
+  const a=agg(ls), top=ls.filter(l=>l.cov>=.5).length, zero=ls.filter(l=>l.cov===0).length;
+  $('#h-all').textContent=`${ls.length} location${ls.length===1?'':'s'} ranked side by side`;
+  $('#p-all').textContent=`${scope()}. Every tracked location with its baseline rank, Local Pack coverage, map and grid position, and reviews. ${top} reach the Local Pack for at least half their keywords; ${zero} never do.`;
+  document.querySelectorAll('#seg-all button').forEach(b=>b.setAttribute('aria-pressed',(b.dataset.g==='1')===S.grp));
+  const s=S.sort.all;
+  const get=(l,k)=>k==='label'?l.label:k==='client'?l.client:k==='top3'?l.d[0]:k==='nr'?l.d[4]:k==='best'?(bestKw(l)?.r??null):l[k];
+  let rows=sortRows(ls,s,get);
+  if(S.grp)rows=clients.flatMap(c=>rows.filter(l=>l.client===c));
+  const cols=[{t:'Portfolio rank',k:'rkAll'},{t:'Brand rank',k:'rkCl'},{t:'Client',k:'client',l:1,c:'c-client'},{t:'Location',k:'label',l:1},{t:'Keywords',k:'kwN'},{t:'In Local Pack',k:'cov'},{t:'Avg map rank',k:'lfAvg'},{t:'Best map rank',k:'best',l:1},{t:'Map top 3',k:'top3'},{t:'Not in top 50',k:'nr'},{t:'Rank spread',l:1,c:'c-spread'},{t:'Grid avg',k:'gridAvg'},{t:'Grid pts top 3',k:'gridTop'},{t:'Reviews',k:'reviews'}];
+  const T=$('#tb-all');let last=null;
+  T.innerHTML=thead(cols,s)+'<tbody>'+(rows.map(l=>{const b=bestKw(l);let g='';if(S.grp&&l.client!==last){last=l.client;const n=rows.filter(x=>x.client===l.client).length;g=`<tr class="grp"><td colspan="${cols.length}">${esc(l.client)} · ${n} location${n===1?'':'s'}</td></tr>`}
+    return g+`<tr class="xrow" tabindex="0" data-id="${l.id}" title="Open location detail"><td class="rk"><b>${l.rkAll}</b> / ${DATA.length}</td><td class="rk"><b>${l.rkCl}</b> / ${l.clN}</td><td class="l c-client">${esc(l.client)}</td><td class="l"><span class="loc-n">${esc(l.label)}</span>${tflag(l)}<div class="loc-s">${esc(l.name)} · <span style="font-family:var(--f-mono);font-size:10.5px">${esc(l.ref)}</span></div></td><td>${l.kwN}</td><td>${l.packN}/${l.kwN} <span class="loc-s">(${pc(l.cov)})</span></td><td>${l.lfAvg==null?'<span class="pill rn">NR</span>':pill(+l.lfAvg.toFixed(1))}</td><td class="l">${b?`${pill(b.r)} <span class="pth">${esc(b.kw)}</span>`:'<span class="pill rn">NR</span>'}</td><td>${l.d[0]}</td><td>${l.d[4]}</td><td class="l c-spread">${minibar(l.d)}</td><td>${l.gridAvg==null?'<span class="pill rn">NR</span>':pill(l.gridAvg)}</td><td>${pc(l.gridTop)}</td><td>${l.reviews?`${l.reviews} <span class="loc-s">${l.rating}★</span>`:'0'}</td></tr>`}).join('')||`<tr><td colspan="${cols.length}" class="dim">No locations match. Clear the search or pick another client.</td></tr>`)+'</tbody>';
+  bindSort(T,'all',['rkAll','rkCl','label','client','lfAvg','gridAvg','best','nr']);
+  T.querySelectorAll('tr.xrow').forEach(tr=>{const t=()=>goLoc(+tr.dataset.id);tr.onclick=t;tr.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();t()}}});
+}
 function rErrors(){
   const ls=DATA.filter(l=>l.flags.length&&(!S.client||l.client===S.client));
   const ex=ls.filter(l=>l.sev==='crit'), kwAff=ex.reduce((a,l)=>a+l.kwN,0)+[...KWFLAG.keys()].filter(k=>!ex.some(l=>k.startsWith(l.id+'|'))&&ls.some(l=>k.startsWith(l.id+'|'))).length;
@@ -663,64 +706,7 @@ function rErrors(){
     (rows.map(({l,f})=>`<tr class="sev-${f.sev}"><td>${'<button class="loclink" data-loc="'+l.id+'">'+esc(l.label)+'</button>'}<div class="loc-s">${esc(l.name)}</div></td><td class="l"><span class="pill ${SEV[f.sev][1]}">${esc(f.type)}</span></td><td class="wrap">${esc(f.show)}</td><td class="wrap">${esc(f.check)}</td></tr>`).join('')||'<tr><td colspan="4" class="dim">No tracking errors for this client.</td></tr>')+'</tbody>';
   bindLocLinks($('#tb-err'));
 }
-const QCATS=['Rank Tracker setup','Google profiles','Keywords','Citations','Reviews','Reporting'];
-const Q={db:null,user:null,rows:null,state:'loading',filter:'open',cat:'',drafts:{},saving:{},err:'',names:{},canWrite:true,unsub:null};
-$('#f-qcat').innerHTML+=QCATS.map(c=>`<option>${esc(c)}</option>`).join('');
-$('#nq-cat').innerHTML=QCATS.map(c=>`<option>${esc(c)}</option>`).join('');
-$('#nq-loc').innerHTML+=byOrder.map(l=>`<option value="${l.id}">${esc(l.label)} · ${esc(l.name)}</option>`).join('');
-const fmtDate=s=>{try{return new Date(s).toLocaleDateString('en-US',{day:'numeric',month:'short',year:'numeric'})}catch(e){return ''}};
-async function qInit(){
-  try{Q.db=await claude.use('db')}catch(e){Q.db=null}
-  try{Q.user=await claude.use('user')}catch(e){Q.user=null}
-  if(!Q.db){Q.state='unavailable';rQ();return}
-  try{const c=Q.user&&Q.user.can?await Q.user.can('data.write'):null;Q.canWrite=c!==false}catch(e){}
-  $('#addq-wrap').hidden=!Q.canWrite;
-  Q.unsub=Q.db.collection('questions').orderBy('order').onSnapshot(s=>{Q.rows=s.docs.map(d=>({id:d.id,...d.data()}));Q.state='ready';qNames();rQ();qBadge()},e=>{Q.state='error';Q.err=e&&e.code||'unavailable';rQ()});
-}
-async function qNames(){if(!Q.user||!Q.user.profiles)return;const ids=[...new Set(Q.rows.map(r=>r.answeredBy).filter(Boolean))];if(!ids.length)return;try{const ps=await Q.user.profiles(ids);ids.forEach(id=>Q.names[id]=(ps[id]&&ps[id].name)||'');rQ()}catch(e){}}
-const qInScope=r=>!S.client||!(r.locs&&r.locs.length)||r.locs.some(id=>{const l=DATA.find(x=>x.id===id);return l&&l.client===S.client});
-function qBadge(){const n=(Q.rows||[]).filter(r=>r.status!=='answered'&&qInScope(r)).length;const b=$('#nav-q');b.hidden=!n;b.textContent=n}
-function sbNums(){const L=DATA.filter(l=>!S.client||l.client===S.client);const nc=new Set(L.map(l=>l.client)).size;$('#sb-count').textContent=`${L.length} location${L.length===1?'':'s'}, ${nc} client${nc===1?'':'s'}`;const e=L.filter(l=>l.flags.length).length;const b=$('#nav-err');b.hidden=!e;b.textContent=e;qBadge()}
-function rQ(){
-  if(S.sec!=='questions')return;
-  document.querySelectorAll('#seg-q button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.f===Q.filter));
-  const box=$('#qlist');
-  if(Q.state==='loading'){box.innerHTML='<div class="q-empty">Loading questions…</div>';return}
-  if(Q.state==='unavailable'){box.innerHTML='<div class="q-empty">Questions are stored with the dashboard and need you to be signed in to claude.ai to load. Open the dashboard while signed in to see and answer them.</div>';return}
-  if(Q.state==='error'){box.innerHTML=`<div class="q-empty">Questions could not load (${esc(Q.err)}). Reload the page to try again.</div>`;return}
-  const all=Q.rows||[];
-  const open=all.filter(r=>r.status!=='answered').length;
-  $('#h-q').textContent=all.length?`${open} open question${open===1?'':'s'}, ${all.length-open} answered`:'No questions yet';
-  let rows=all.filter(r=>Q.filter==='all'||(Q.filter==='answered'?r.status==='answered':r.status!=='answered')).filter(r=>!Q.cat||r.cat===Q.cat).filter(r=>!S.client||!(r.locs&&r.locs.length)||r.locs.some(id=>{const l=DATA.find(x=>x.id===id);return l&&l.client===S.client}));
-  if(!all.length){box.innerHTML='<div class="q-empty">No questions have been added yet. '+(Q.canWrite?'Use "Add a question" below to start the list.':'')+'</div>';return}
-  if(!rows.length){box.innerHTML=`<div class="q-empty">Nothing ${Q.filter==='answered'?'answered':'open'} for this filter.</div>`;return}
-  const active=document.activeElement&&document.activeElement.dataset&&document.activeElement.dataset.qid;
-  box.innerHTML=rows.map(r=>{const n=all.indexOf(r)+1,done=r.status==='answered',locs=(r.locs||[]).map(id=>DATA.find(x=>x.id===id)).filter(Boolean);
-    return `<article class="q${done?' done':''}" data-q="${esc(r.id)}">
-      <div class="q-top"><span class="q-num">Q${n}</span><span class="pill neutral">${esc(r.cat||'General')}</span>${r.audience?`<span class="pill ${r.audience==='Client'?'wrn':'r2'}">Ask: ${esc(r.audience)}</span>`:''}${done?'<span class="pill r1">Answered</span>':''}</div>
-      <h4>${esc(r.text||'')}</h4>
-      ${r.context?`<p class="ctx">${esc(r.context)}</p>`:''}
-      ${locs.length?`<div class="chips">${locs.map(l=>`<button class="loclink" data-loc="${l.id}">${esc(l.label)} · ${esc(l.name)}</button>`).join('')}</div>`:''}
-      <div class="ans">${done?`<div class="answered">${esc(r.answer||'')}</div><div class="row"><span class="who">Answered${r.answeredBy&&Q.names[r.answeredBy]?' by '+esc(Q.names[r.answeredBy]):''}${r.answeredAt?' · '+fmtDate(r.answeredAt):''}</span>${Q.canWrite?`<button class="btn ghost" data-act="reopen" data-qid="${esc(r.id)}">Reopen</button>`:''}</div>`:
-      (Q.canWrite?`<textarea data-qid="${esc(r.id)}" id="qa-${esc(r.id)}" aria-label="Answer for Q${n}" placeholder="Type the answer or decision">${esc(Q.drafts[r.id]??'')}</textarea><div class="row"><button class="btn" data-act="answer" data-qid="${esc(r.id)}"${Q.saving[r.id]?' disabled':''}>${Q.saving[r.id]?'Saving…':'Save answer'}</button><span class="q-status" id="qs-${esc(r.id)}"></span></div>`:'<span class="q-status">Waiting for an answer.</span>')}</div>
-    </article>`}).join('');
-  bindLocLinks(box);
-  box.querySelectorAll('textarea[data-qid]').forEach(ta=>ta.oninput=()=>{Q.drafts[ta.dataset.qid]=ta.value});
-  if(active){const el=document.getElementById('qa-'+active);if(el){el.focus();el.selectionStart=el.selectionEnd=el.value.length}}
-  box.querySelectorAll('button[data-act]').forEach(b=>b.onclick=()=>qAct(b.dataset.act,b.dataset.qid));
-}
-async function qAct(act,id){
-  const ref=Q.db.doc('questions/'+id);let by=null;try{by=Q.user&&Q.user.id?await Q.user.id():null}catch(e){}
-  if(act==='answer'){const v=(Q.drafts[id]||'').trim();const st=document.getElementById('qs-'+id);if(!v){if(st)st.textContent='Type an answer first.';return}
-    Q.saving[id]=true;rQ();try{await ref.update({status:'answered',answer:v,answeredBy:by,answeredAt:new Date().toISOString()});delete Q.drafts[id]}catch(e){Q.saving[id]=false;rQ();const s2=document.getElementById('qs-'+id);if(s2)s2.textContent=e&&e.code==='invalid_argument'?'This question was removed.':'Could not save. You may not have edit access to this dashboard.';return}
-    Q.saving[id]=false;rQ()}
-  if(act==='reopen'){const r=Q.rows.find(x=>x.id===id);Q.drafts[id]=r&&r.answer||'';try{await ref.update({status:'open'})}catch(e){}}
-}
-document.querySelectorAll('#seg-q button').forEach(b=>b.onclick=()=>{Q.filter=b.dataset.f;rQ()});
-$('#f-qcat').onchange=e=>{Q.cat=e.target.value;rQ()};
-$('#addq').addEventListener('submit',async e=>{e.preventDefault();const text=$('#nq-text').value.trim();if(!text||!Q.db)return;const st=$('#nq-status');st.textContent='Adding…';
-  const max=(Q.rows||[]).reduce((a,r)=>Math.max(a,r.order||0),0);const loc=$('#nq-loc').value;
-  try{await Q.db.collection('questions').add({text,context:$('#nq-ctx').value.trim(),cat:$('#nq-cat').value,audience:'',locs:loc?[+loc]:[],status:'open',answer:'',order:max+1,createdAt:new Date().toISOString()});$('#addq').reset();st.textContent='Added.';Q.filter='open'}catch(x){st.textContent='Could not add the question. You may not have edit access to this dashboard.'}});
+function sbNums(){const L=DATA.filter(l=>!S.client||l.client===S.client);const nc=new Set(L.map(l=>l.client)).size;$('#sb-count').textContent=`${L.length} location${L.length===1?'':'s'}, ${nc} client${nc===1?'':'s'}`;const e=L.filter(l=>l.flags.length).length;const b=$('#nav-err');b.hidden=!e;b.textContent=e}
 function render(){
   const ls=sel();
   sbNums();
@@ -728,22 +714,23 @@ function render(){
   $('#m-locs').textContent=ls.length;
   document.querySelectorAll('#nav button').forEach(b=>b.setAttribute('aria-current',b.dataset.sec===S.sec));
   document.querySelectorAll('.content > section').forEach(s=>s.hidden=s.id!=='sec-'+S.sec);
-  ({overview:rOverview,errors:rErrors,questions:rQ,location:rLocation,pack:rPack,map:rMap,grid:rGrid,keywords:rKw,notes:()=>{}})[S.sec](ls);
+  ({overview:rOverview,all:rAll,errors:rErrors,location:rLocation,pack:rPack,map:rMap,grid:rGrid,keywords:rKw,notes:()=>{}})[S.sec](ls);
 }
 document.querySelectorAll('#nav button').forEach(b=>b.onclick=()=>{S.sec=b.dataset.sec;try{localStorage.setItem('dra-lr-sec',S.sec)}catch(e){};render();window.scrollTo(0,0)});
 document.querySelectorAll('#seg-kw button').forEach(b=>b.onclick=()=>{S.kwf=b.dataset.f;render()});
+document.querySelectorAll('#seg-all button').forEach(b=>b.onclick=()=>{S.grp=b.dataset.g==='1';render()});
 $('#f-client').onchange=e=>{S.client=e.target.value;render()};
 $('#f-q').oninput=e=>{S.q=e.target.value.trim();render()};
 
 $('#f-loc').onchange=e=>goLoc(+e.target.value);
 render();
-/* Open Questions removed from this published copy */
 (async()=>{
   let dl=null;try{dl=await claude.use('downloads')}catch(e){}
+  if(!dl&&!window.claude){dl={save:async({filename,data})=>{const type=/\.csv$/.test(filename)?'text/csv;charset=utf-8':/\.pdf$/.test(filename)?'application/pdf':'application/octet-stream';const b=data instanceof Blob?data:new Blob([data],{type});const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download=filename;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),2000);return {status:'saved'}}}}
   const btn=$('#dl-btn'),st=$('#dl-status');
-  if(!dl||!window.XLSX){return}
-  btn.hidden=false;
-  const upd=()=>{$('#dl-label').textContent=S.client?`Download ${S.client} (Excel)`:'Download Excel'};upd();
+  if(!dl){return}
+  $('#dl-group').hidden=false;btn.hidden=!window.XLSX;
+  const upd=()=>{$('#dl-label').textContent='Download Excel';$('#dl-btn').title=S.client?`Excel workbook for ${S.client}`:'Excel workbook, all clients'};upd();
   $('#f-client').addEventListener('change',upd);
   btn.onclick=async()=>{
     btn.disabled=true;st.textContent='Building workbook…';
@@ -758,15 +745,63 @@ render();
       add('Grid keywords',[['Client','Location','City','State','Keyword','Avg map rank','Points rank 1-3','Points rank 4-10','Points 11+ / not ranking','Points checked']].concat(L.flatMap(l=>l.grid.map(g=>[l.client,l.name,l.city,l.st,g[0],g[1],g[2],g[3],g[4],g[2]+g[3]+g[4]]))),[26,28,16,7,40,11,11,11,13,11]);
       const iss=L.flatMap(l=>l.flags.map(f=>[l.client,l.name,l.city,l.st,f.type,f.show,f.check]));
       add('Listing issues',[['Client','Location','City','State','Issue','What the data shows','What to check']].concat(iss),[26,28,16,7,28,90,70]);
-      if(Q.rows&&Q.rows.length){const qs=Q.rows.filter(qInScope);add('Questions',[['#','Question','Topic','Ask','Locations','Status','Answer','Context']].concat(qs.map((r,i)=>[i+1,r.text,r.cat,r.audience,(r.locs||[]).map(id=>{const l=DATA.find(x=>x.id===id);return l?l.label:''}).join('; '),r.status==='answered'?'Answered':'Open',r.answer||null,r.context])),[4,60,18,10,30,10,50,80])}
       const buf=XLSX.write(wb,{bookType:'xlsx',type:'array'});
       const slug=(S.client||'All-Clients').replace(/[^A-Za-z0-9]+/g,'-').replace(/^-|-$/g,'');
       await dl.save({filename:`Local-Pack-Map-Rankings_${slug}_Oct-2026-Baseline.xlsx`,data:buf});
       st.textContent='Saved.';
-    }catch(e){const c=e&&e.code;st.textContent=c==='declined'?'Download cancelled.':c==='rate_limited'?'A save prompt is already open. Try again in a moment.':(c==='unavailable'||c==='not_granted'||c==='capability_disabled'||c==='capability_removed')?'Downloads are not available in this view.':'The download did not complete. Try again.';if(c==='unavailable'||c==='not_granted')btn.hidden=true}
+    }catch(e){const c=e&&e.code;st.textContent=c==='declined'?'Download cancelled.':c==='rate_limited'?'A save prompt is already open. Try again in a moment.':(c==='unavailable'||c==='not_granted'||c==='capability_disabled'||c==='capability_removed')?'Downloads are not available in this view.':'The download did not complete. Try again.';if(c==='unavailable'||c==='not_granted')$('#dl-group').hidden=true}
     btn.disabled=false;setTimeout(()=>{if(st.textContent==='Saved.')st.textContent=''},4000);
+  };
+  const slug=()=>(S.client||'All-Clients').replace(/[^A-Za-z0-9]+/g,'-').replace(/^-|-$/g,'');
+  const fail=(e,b)=>{const c=e&&e.code;st.textContent=c==='declined'?'Download cancelled.':c==='rate_limited'?'A save prompt is already open. Try again in a moment.':(c==='unavailable'||c==='not_granted'||c==='capability_disabled'||c==='capability_removed')?'Downloads are not available in this view.':'The download did not complete. Try again.';if(c==='unavailable'||c==='not_granted')$('#dl-group').hidden=true};
+  const done=()=>{st.textContent='Saved.';setTimeout(()=>{if(st.textContent==='Saved.')st.textContent=''},4000)};
+  const csvCell=v=>{if(v==null)return '';const t=String(v);return /[",\n\r]/.test(t)||/^[=+\-@]/.test(t)?'"'+(/^[=+\-@]/.test(t)?"'":'')+t.replace(/"/g,'""')+'"':t};
+  const toCsv=rows=>'﻿'+rows.map(r=>r.map(csvCell).join(',')).join('\r\n')+'\r\n';
+  const r1=x=>x==null?null:Math.round(x*10)/10;
+  const locRows=L=>[['Portfolio rank','Brand rank','Client','Location','City','State','Store ref','BrightLocal ID','Keywords tracked','Keywords in Local Pack','Local Pack coverage %','Avg map rank','Best map rank','Best map keyword','Map rank 1-3','Map rank 4-10','Map rank 11-20','Map rank 21-50','Not in top 50','Grid avg rank','Grid points in top 3','Grid points checked','Grid top 3 %','Reviews','Rating','Listing issue','Baseline date']].concat(L.slice().sort((a,b)=>a.rkAll-b.rkAll).map(l=>{const b=bestKw(l);return [l.rkAll,l.rkCl,l.client,l.name,l.city,l.st,l.ref,l.id,l.kwN,l.packN,Math.round(l.cov*1000)/10,r1(l.lfAvg),b?b.r:null,b?b.kw:null,l.d[0],l.d[1],l.d[2],l.d[3],l.d[4],l.gridAvg,l.gTop,l.gPts,Math.round(l.gridTop*1000)/10,l.reviews,l.reviews?l.rating:null,l.flags.map(f=>f.type).join('; ')||null,'2026-10-03']}));
+  const kwRows=L=>[['Client','Location','City','State','Store ref','Keyword','Monthly volume','Local Pack position','Map rank (Local Finder)','Baseline date']].concat(L.flatMap(l=>l.kw.map(x=>[l.client,l.name,l.city,l.st,l.ref,x[0],x[1],x[3],x[4],'2026-10-03'])));
+  const saveCsv=async(b,rows,name)=>{b.disabled=true;st.textContent='Building CSV…';try{await dl.save({filename:name,data:toCsv(rows)});done()}catch(e){fail(e)}b.disabled=false};
+  const L=()=>byOrder.filter(l=>!S.client||l.client===S.client);
+  $('#csv-btn').title='All locations with baseline ranks (one row per location)';
+  $('#csv-btn').onclick=()=>saveCsv($('#csv-btn'),locRows(L()),`Local-Rankings_All-Locations_${slug()}_Oct-2026-Baseline.csv`);
+  const ac=$('#all-csv');ac.hidden=false;ac.onclick=()=>saveCsv(ac,locRows(sel()),`Local-Rankings_All-Locations_${slug()}_Oct-2026-Baseline.csv`);
+  const kc=$('#kw-csv');kc.hidden=false;kc.onclick=()=>saveCsv(kc,kwRows(L()),`Local-Rankings_Keywords_${slug()}_Oct-2026-Baseline.csv`);
+  const pb=$('#pdf-btn');
+  if(!window.html2canvas||!window.jspdf){pb.hidden=true;return}
+  pb.onclick=async()=>{
+    const keep={sec:S.sec,grp:S.grp,kwf:S.kwf,scroll:window.scrollY};
+    pb.disabled=true;
+    const secs=[['overview','Overview'],['all','All Locations'],['errors','Listing Issues'],['pack','Local Pack'],['map','Map Rankings'],['grid','Local Search Grid'],['keywords','Keywords'],['notes','Reading This Data']];
+    try{
+      const {jsPDF}=window.jspdf;const pdf=new jsPDF({orientation:'landscape',unit:'pt',format:'letter'});
+      const PW=pdf.internal.pageSize.getWidth(),PH=pdf.internal.pageSize.getHeight(),M=30,HB=46,CW=PW-2*M,CH=PH-HB-M;
+      const scopeTxt=S.client||'All clients';const stamp=new Date().toLocaleDateString('en-US',{year:'numeric',month:'short',day:'numeric'});
+      let page=0;
+      const header=(title)=>{if(page++)pdf.addPage();pdf.setFillColor(0,33,69);pdf.rect(0,0,PW,HB-12,'F');pdf.setTextColor(255,255,255);pdf.setFont('helvetica','bold');pdf.setFontSize(12);pdf.text('Local Pack and Map Rankings · October 2026 Baseline',M,21);pdf.setFont('helvetica','normal');pdf.setFontSize(9);pdf.text(`${title} · ${scopeTxt}`,PW-M,21,{align:'right'});pdf.setTextColor(125,139,157);pdf.setFontSize(8);pdf.text(`Digital Reach Agency · BrightLocal Rank Tracker 3 Oct 2026, Local Search Grid 2 Oct 2026 · Exported ${stamp} · Page ${page}`,M,PH-12)};
+      document.body.classList.add('pdf-mode');S.grp=false;S.kwf='all';
+      const cont=document.querySelector('.content');
+      for(let i=0;i<secs.length;i++){
+        const [id,title]=secs[i];st.textContent=`Building PDF… ${i+1} of ${secs.length}`;
+        S.sec=id;render();await new Promise(r=>requestAnimationFrame(()=>setTimeout(r,60)));
+        const el=$('#sec-'+id);
+        const cv=await html2canvas(el,{scale:1.5,backgroundColor:'#f4f7fa',useCORS:true,logging:false,windowWidth:1400});
+        const k=CW/cv.width, sliceH=Math.floor(CH/k), sc=cv.width/el.getBoundingClientRect().width, top0=el.getBoundingClientRect().top;
+        const cuts=[...new Set([...el.querySelectorAll('tr,.card,.tiles,.flag,.note,.sec-head,.legend,.card-note,svg.chart rect,svg.chart > text')].map(n=>Math.round((n.getBoundingClientRect().bottom-top0)*sc)+2))].sort((a,b)=>a-b);
+        for(let y=0;y<cv.height;){
+          let end=y+sliceH;if(end<cv.height){const c2=cuts.filter(c=>c>y+sliceH*.55&&c<=end);if(c2.length)end=c2[c2.length-1]}
+          const h=Math.min(end,cv.height)-y;const c=document.createElement('canvas');c.width=cv.width;c.height=h;
+          const g=c.getContext('2d');g.fillStyle='#f4f7fa';g.fillRect(0,0,c.width,h);g.drawImage(cv,0,y,cv.width,h,0,0,cv.width,h);
+          header(title);pdf.addImage(c.toDataURL('image/jpeg',.82),'JPEG',M,HB,CW,h*k);y+=h;
+        }
+      }
+      document.body.classList.remove('pdf-mode');Object.assign(S,{sec:keep.sec,grp:keep.grp,kwf:keep.kwf});render();window.scrollTo(0,keep.scroll);
+      st.textContent='Saving PDF…';
+      await dl.save({filename:`Local-Pack-Map-Rankings_${slug()}_Oct-2026-Baseline.pdf`,data:pdf.output('arraybuffer')});done();
+    }catch(e){document.body.classList.remove('pdf-mode');Object.assign(S,{sec:keep.sec,grp:keep.grp,kwf:keep.kwf});render();if(e&&e.code)fail(e);else st.textContent='The PDF could not be built. Try again.'}
+    pb.disabled=false;
   };
 })();
 </script>
 
-</body></html>
+</body>
+</html>
