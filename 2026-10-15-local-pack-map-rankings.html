@@ -236,6 +236,19 @@ body.pdf-mode .tbl-scroll,body.pdf-mode .tbl-scroll.tall,body.pdf-mode .chart-wr
 body.pdf-mode .controls,body.pdf-mode .disclose,body.pdf-mode .sec-dl,body.pdf-mode .locbar,body.pdf-mode th .arr,body.pdf-mode #go-err{display:none!important}
 body.pdf-mode thead th{position:static}
 body.pdf-mode tbody tr:hover td{background:none}
+.tr-tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:14px;margin-bottom:20px}
+.tr-tile{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:16px 18px;display:grid;gap:6px}
+.tr-tile .lab{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3)}
+.tr-tile .val{font-size:30px;font-weight:800;letter-spacing:-.02em;line-height:1.1;font-variant-numeric:tabular-nums}
+.tr-tile .val small{font-size:13px;color:var(--ink-3);font-weight:700;letter-spacing:0}
+.tr-tile .dl2{display:flex;flex-wrap:wrap;gap:6px}
+.tr-chip{font-family:var(--f-mono);font-size:11px;border-radius:20px;padding:2px 8px;border:1px solid var(--line-2);background:var(--surface-2);color:var(--ink-2);white-space:nowrap}
+.tr-chip.g{border-color:#a9dcc4;background:#eefaf4;color:#0f7a52}.tr-chip.b{border-color:#f0b4ab;background:#fdeeec;color:#b03a2e}
+.tr-sm{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:16px}
+.tr-sm figure{margin:0;border:1px solid var(--line);border-radius:9px;padding:12px 12px 6px}
+.tr-sm figcaption{font-size:12.5px;font-weight:700;color:var(--ink-2);display:flex;flex-direction:column;gap:2px}
+.tr-sm figcaption span{font-family:var(--f-mono);font-weight:500;color:var(--ink-3);font-size:11px}
+.tr-sm svg{display:block;width:100%;height:auto}
 </style>
 
 <div class="shell">
@@ -247,14 +260,15 @@ body.pdf-mode tbody tr:hover td{background:none}
     </div>
     <ul class="sb-nav" id="nav">
       <li><button data-sec="overview" aria-current="true"><span class="idx">01</span>Overview</button></li>
-      <li><button data-sec="all"><span class="idx">02</span>All Locations</button></li>
-      <li><button data-sec="location"><span class="idx">03</span>Location Detail</button></li>
-      <li><button data-sec="pack"><span class="idx">04</span>Local Pack</button></li>
-      <li><button data-sec="map"><span class="idx">05</span>Map Rankings</button></li>
-      <li><button data-sec="grid"><span class="idx">06</span>Local Search Grid</button></li>
-      <li><button data-sec="citations"><span class="idx">07</span>Citations</button></li>
-      <li><button data-sec="keywords"><span class="idx">08</span>Keywords</button></li>
-      <li><button data-sec="notes"><span class="idx">09</span>Reading This Data</button></li>
+      <li><button data-sec="trends"><span class="idx">02</span>Trends</button></li>
+      <li><button data-sec="all"><span class="idx">03</span>All Locations</button></li>
+      <li><button data-sec="location"><span class="idx">04</span>Location Detail</button></li>
+      <li><button data-sec="pack"><span class="idx">05</span>Local Pack</button></li>
+      <li><button data-sec="map"><span class="idx">06</span>Map Rankings</button></li>
+      <li><button data-sec="grid"><span class="idx">07</span>Local Search Grid</button></li>
+      <li><button data-sec="citations"><span class="idx">08</span>Citations</button></li>
+      <li><button data-sec="keywords"><span class="idx">09</span>Keywords</button></li>
+      <li><button data-sec="notes"><span class="idx">10</span>Reading This Data</button></li>
     </ul>
     <div class="sb-foot">BrightLocal: Rank Tracker, Local Search Grid &amp; Citation Tracker<br><span id="sb-count">40 locations, 6 clients</span><br>Updated 15 Oct 2026 · baseline 3 Oct</div>
   </nav>
@@ -310,6 +324,38 @@ body.pdf-mode tbody tr:hover td{background:none}
           <h3>Clients compared</h3>
           <p class="card-note">Local Pack coverage is the share of each client's tracked keywords where a location appears in Google's three-business pack. Changes compare the same keywords on 3 and 12 October; map change is average places gained (▲) or lost (▼). Select a client name to filter the whole dashboard.</p>
           <div class="tbl-scroll"><table id="tb-clients"></table></div>
+        </div>
+      </section>
+
+      <section id="sec-trends" hidden>
+        <div class="sec-head"><h2 id="h-tr"></h2><p id="p-tr"></p></div>
+        <div class="tr-tiles" id="t-tr"></div>
+        <div class="card">
+          <h3>Week by week</h3>
+          <p class="card-note" id="n-tr-line"></p>
+          <div class="tr-sm" id="ch-tr-line"></div>
+        </div>
+          <div class="card">
+            <h3>Keyword movement this week</h3>
+            <p class="card-note" id="n-tr-move"></p>
+            <div class="chart-wrap" id="ch-tr-move"></div>
+          </div>
+          <div class="card">
+            <h3>Map rank mix · baseline vs this week</h3>
+            <p class="card-note" id="n-tr-mix"></p>
+            <ul class="legend" id="lg-tr-mix"></ul>
+            <div class="chart-wrap" id="ch-tr-mix"></div>
+          </div>
+        <div class="card">
+          <h3 id="h-tr-wow">Local Pack change this week, by location</h3>
+          <p class="card-note" id="n-tr-wow"></p>
+          <div class="chart-wrap" id="ch-tr-wow"></div>
+        </div>
+        <div class="card">
+          <h3 id="h-tr-base"></h3>
+          <p class="card-note" id="n-tr-base"></p>
+          <ul class="legend"><li><span class="sw" style="background:#fff;border:2px solid #7d8b9d;border-radius:50%"></span>3 Oct baseline</li><li><span class="sw" style="background:#1a56db;border-radius:50%"></span>This week</li></ul>
+          <div class="chart-wrap" id="ch-tr-base"></div>
         </div>
       </section>
 
@@ -517,7 +563,7 @@ function agg(ls){
     org:kw.filter(x=>x[2]!=null).length,pts,top,gridTop:pts?top/pts:0,gridAvg:ga.length?ga.reduce((a,b)=>a+b,0)/ga.length:null,gridNR:ls.filter(l=>l.gridAvg==null).length,
     reviews:ls.reduce((a,l)=>a+(l.reviews||0),0),
     ...(()=>{const m=kw.filter(x=>!x[7]),b=m.filter(x=>x[4]!=null&&x[6]!=null),pf=m.map(x=>x[6]).filter(x=>x!=null),d0=m.filter(x=>x[6]!=null&&x[6]<=3).length,d0n=m.filter(x=>x[4]!=null&&x[4]<=3).length;
-      return {mN:m.length,mPackNow:m.filter(x=>x[3]!=null).length,mPackPrev:m.filter(x=>x[5]!=null).length,mTop3Now:d0n,mTop3Prev:d0,mNRNow:m.filter(x=>x[4]==null).length,mNRPrev:m.filter(x=>x[6]==null).length,
+      return {mN:m.length,mPackNow:m.filter(x=>x[3]!=null).length,mPackPrev:m.filter(x=>x[5]!=null).length,mTop3Now:d0n,mTop3Prev:d0,mNRNow:m.filter(x=>x[4]==null).length,mNRPrev:m.filter(x=>x[6]==null).length,mAvgPrev:(r=>r.length?Math.round(r.reduce((a,b)=>a+b,0)/r.length*10)/10:null)(m.map(x=>x[6]).filter(x=>x!=null)),mAvgNow:(r=>r.length?Math.round(r.reduce((a,b)=>a+b,0)/r.length*10)/10:null)(m.map(x=>x[4]).filter(x=>x!=null)),
         mapD:b.length?b.reduce((a,x)=>a+(x[6]-x[4]),0)/b.length:null,up:b.filter(x=>x[4]<x[6]).length+m.filter(x=>x[4]!=null&&x[6]==null).length,down:b.filter(x=>x[4]>x[6]).length+m.filter(x=>x[4]==null&&x[6]!=null).length,newN:kw.length-m.length}})(),
     ...(()=>{const C=ls.filter(l=>l.ct&&l.ct.score!=null);return {ctN:C.length,ctScore:C.length?C.reduce((a,l)=>a+l.ct.score,0)/C.length:null,ctFound:C.reduce((a,l)=>a+(l.ct.found||0),0),ctTotal:C.reduce((a,l)=>a+l.ct.total,0),ctLive:C.reduce((a,l)=>a+(l.ct.live||0),0)}})()};
 }
@@ -572,7 +618,7 @@ function rOverview(ls){
   const a=agg(ls);
   $('#h-overview').textContent=a.kw?`${pc(a.pack/a.kw)} of tracked keywords put a location in the Local Pack`:'No locations match this filter';
   const pd=a.mPackNow-a.mPackPrev;
-  $('#ov-chg').innerHTML=`<svg class="fi" viewBox="0 0 20 20" fill="none" aria-hidden="true"><circle cx="10" cy="10" r="7.5" stroke="#1a56db" stroke-width="1.6" fill="#e8eefc"/><path d="M10 9v4.5" stroke="#1a56db" stroke-width="1.6" stroke-linecap="round"/><circle cx="10" cy="6.3" r=".9" fill="#1a56db"/></svg><div class="ft"><b>Since the 3 October baseline:</b> on the same ${a.mN} keywords, Local Pack appearances went from ${a.mPackPrev} to ${a.mPackNow} (${pd>=0?'+':''}${pd}), map top-3 rankings from ${a.mTop3Prev} to ${a.mTop3Now}, and the average map position ${a.mapD==null?'held':a.mapD>0?'improved by '+a.mapD.toFixed(1)+' places':'slipped by '+(-a.mapD).toFixed(1)+' places'}. ${a.up} keywords moved up and ${a.down} moved down. ${a.ctN?`Citations are back: average Key Citation Score ${f1(a.ctScore)}/100, ${a.ctFound} of ${a.ctTotal} key citations found.`:''} The grid has not re-run since 2 October.</div>`;
+  $('#ov-chg').innerHTML=`<svg class="fi" viewBox="0 0 20 20" fill="none" aria-hidden="true"><circle cx="10" cy="10" r="7.5" stroke="#1a56db" stroke-width="1.6" fill="#e8eefc"/><path d="M10 9v4.5" stroke="#1a56db" stroke-width="1.6" stroke-linecap="round"/><circle cx="10" cy="6.3" r=".9" fill="#1a56db"/></svg><div class="ft"><b>Since the 3 October baseline:</b> on the same ${a.mN} keywords, Local Pack appearances went from ${a.mPackPrev} to ${a.mPackNow} (${pd>=0?'+':''}${pd}), map top-3 rankings from ${a.mTop3Prev} to ${a.mTop3Now}, and the average map rank ${a.mAvgPrev==null||a.mAvgNow==null?'is not available':a.mAvgNow<a.mAvgPrev?'improved from '+a.mAvgPrev.toFixed(1)+' to '+a.mAvgNow.toFixed(1)+' ('+(a.mAvgPrev-a.mAvgNow).toFixed(1)+' places)':a.mAvgNow>a.mAvgPrev?'slipped from '+a.mAvgPrev.toFixed(1)+' to '+a.mAvgNow.toFixed(1)+' ('+(a.mAvgNow-a.mAvgPrev).toFixed(1)+' places)':'held at '+a.mAvgNow.toFixed(1)}. ${a.up} keywords moved up and ${a.down} moved down. ${a.ctN?`Citations are back: average Key Citation Score ${f1(a.ctScore)}/100, ${a.ctFound} of ${a.ctTotal} key citations found.`:''} The grid has not re-run since 2 October.</div>`;
   $('#p-overview').textContent=`${scope()}, ${a.n} location${a.n===1?'':'s'} track ${a.kw} keywords in Rank Tracker. ${a.d[0]} reach the top 3 on the map and ${a.d[4]} do not reach the top 50. On the grid, the listing ranks in the top 3 at ${pc(a.gridTop)} of points checked.`;
   tiles('#t-overview',[['Locations',a.n,`${new Set(ls.map(l=>l.client)).size} client${new Set(ls.map(l=>l.client)).size===1?'':'s'}`,'#1a56db'],
     ['Keywords tracked',n(a.kw),'BrightLocal Rank Tracker, Google US','#7c8798'],
@@ -770,6 +816,90 @@ function rCit(ls){
   $('#ch-cit').innerHTML=C.length?hbar(miss.map(m=>({label:m.c,value:m.n,text:`${m.n} of ${C.length} missing`,color:m.n/C.length>=.5?'#eb6834':m.n?'#eda100':'#0f7a52'})),{max:C.length,lw:120,fmt:v=>v}):'';
 }
 function sbNums(){const L=DATA.filter(l=>!S.client||l.client===S.client);const nc=new Set(L.map(l=>l.client)).size;$('#sb-count').textContent=`${L.length} location${L.length===1?'':'s'}, ${nc} client${nc===1?'':'s'}`;}
+// ---- Trends: weekly snapshots. Add a new entry per Rank Tracker run (pk = Local Pack position, lf = map rank, has = tracked that week).
+const WEEKS=[{label:'3 Oct',full:'3 Oct 2026 (baseline)',pk:x=>x[5],lf:x=>x[6],has:x=>!x[7]},{label:'12 Oct',full:'12 Oct 2026',pk:x=>x[3],lf:x=>x[4],has:()=>true}];
+function wkStats(kws,w){const W=WEEKS[w],r=kws.map(W.lf),rk=r.filter(v=>v!=null);
+  return {n:kws.length,pack:kws.filter(x=>W.pk(x)!=null).length,top3:r.filter(v=>v!=null&&v<=3).length,top10:r.filter(v=>v!=null&&v<=10).length,nr:r.filter(v=>v==null).length,avg:rk.length?Math.round(rk.reduce((a,b)=>a+b,0)/rk.length*10)/10:null}}
+function wkMove(kws,a,b){const A=WEEKS[a],B=WEEKS[b];let up=0,dn=0,held=0,ent=0,drop=0,out=0;
+  kws.forEach(x=>{const p=A.lf(x),q=B.lf(x);if(p==null&&q==null)out++;else if(p==null)ent++;else if(q==null)drop++;else if(q<p)up++;else if(q>p)dn++;else held++});return {up,dn,held,ent,drop,out}}
+const sgn=(d,dig=0)=>d==null?'–':Math.abs(d)<(dig?0.05:0.5)?'±0':(d>0?'+':'−')+Math.abs(d).toFixed(dig);
+const chip=(lab,d,lowBetter,dig=0)=>{const good=d!=null&&(lowBetter?d<0:d>0),bad=d!=null&&(lowBetter?d>0:d<0),z=d==null||Math.abs(d)<(dig?0.05:0.5);return `<span class="tr-chip ${z?'':good?'g':bad?'b':''}">${lab} ${sgn(d,dig)}</span>`};
+function smLine(vals,{lowBetter=false,dig=0,lab}){
+  const W=220,H=150,l=30,r=26,t=26,b=24,n=vals.length,v=vals.map(x=>x==null?null:+x),ok=v.filter(x=>x!=null);
+  let lo=Math.min(...ok),hi=Math.max(...ok);const pad=Math.max((hi-lo)*0.25,dig?0.5:2);lo=Math.max(0,lo-pad);hi=hi+pad;
+  const X=i=>n<2?l+(W-l-r)/2:l+20+i*(W-l-r-20)/(n-1),Y=y=>t+(H-t-b)*(lowBetter?(y-lo)/(hi-lo||1):1-(y-lo)/(hi-lo||1));
+  let s=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(lab)} by week">`;
+  [lo,(lo+hi)/2,hi].forEach(g=>s+=`<line class="gridline" x1="${l}" x2="${W-r+10}" y1="${Y(g)}" y2="${Y(g)}"/><text class="axis-txt" x="${l-6}" y="${Y(g)+3}" text-anchor="end">${dig?g.toFixed(1):Math.round(g)}</text>`);
+  const last=v[n-1],first=v[0],d=last!=null&&first!=null?last-first:null,good=d!=null&&(lowBetter?d<0:d>0),col=d==null||d===0?'#7d8b9d':good?'#0f7a52':'#b03a2e';
+  const pts=v.map((y,i)=>y==null?null:[X(i),Y(y)]).filter(Boolean);
+  if(pts.length>1)s+=`<polyline points="${pts.map(p=>p.join(',')).join(' ')}" fill="none" stroke="#1a56db" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>`;
+  v.forEach((y,i)=>{if(y==null)return;const x=X(i),yy=Y(y),isL=i===n-1;
+    s+=`<circle cx="${x}" cy="${yy}" r="${isL?5.5:4.5}" fill="${isL?'#1a56db':'#fff'}" stroke="#1a56db" stroke-width="2"><title>${WEEKS[i].full}: ${dig?y.toFixed(1):y}</title></circle>`+
+      `<text x="${x}" y="${yy-10}" text-anchor="middle" font-size="12" font-weight="${isL?800:600}" fill="${isL?'#0d1826':'#46556a'}">${dig?y.toFixed(1):y}</text>`;
+    s+=`<text class="axis-txt" x="${x}" y="${H-8}" text-anchor="middle">${WEEKS[i].label}</text>`});
+  return {svg:s+'</svg>',d,col};
+}
+function divBars(rows,lw=210){
+  const W=900,rh=28,top=24,h=top+rows.length*rh+6,x0=lw+16,mid=x0+(W-x0-60)/2,half=(W-x0-60)/2,M=Math.max(1,...rows.map(r=>Math.abs(r.d)));
+  let s=`<svg class="chart" viewBox="0 0 ${W} ${h}" role="img" aria-label="Change by location"><text class="axis-txt" x="${mid-half}" y="14">−${M}</text><text class="axis-txt" x="${mid}" y="14" text-anchor="middle">0</text><text class="axis-txt" x="${mid+half}" y="14" text-anchor="end">+${M}</text><line x1="${mid}" x2="${mid}" y1="18" y2="${h-4}" stroke="#7d8b9d" stroke-width="1"/>`;
+  rows.forEach((r,i)=>{const y=top+i*rh,w=Math.abs(r.d)/M*half,pos=r.d>0,c=pos?'#0f7a52':'#b03a2e';
+    if(r.id)s+=`<rect class="hit" data-loc="${r.id}" x="0" y="${y}" width="${W}" height="${rh}" fill="transparent"><title>Open ${esc(r.label)}</title></rect>`;
+    s+=`<text class="pt-label" x="${lw}" y="${y+13}" text-anchor="end" fill="#0d1826" font-size="12">${esc(r.label)}</text><text x="${lw}" y="${y+24}" text-anchor="end" fill="#7d8b9d" font-size="9.5" font-family="IBM Plex Mono,monospace">${esc(r.sub||'')}</text>`+
+      `<rect x="${pos?mid:mid-w}" y="${y+5}" width="${Math.max(w,2)}" height="15" rx="3" fill="${c}"><title>${esc(r.label)}: ${r.prev} → ${r.now} (${sgn(r.d)})</title></rect>`+
+      `<text x="${pos?mid+w+6:mid-w-6}" y="${y+17}" text-anchor="${pos?'start':'end'}" font-size="11.5" font-weight="800" fill="${c}">${sgn(r.d)}</text>`+
+      `<text x="${W-4}" y="${y+17}" text-anchor="end" font-size="10.5" fill="#7d8b9d" font-family="IBM Plex Mono,monospace">${r.prev}→${r.now}</text>`});
+  return s+'</svg>';
+}
+function moveBar(m){
+  const parts=[['Moved up',m.up,'#0f7a52'],['Entered top 50',m.ent,'#5cb88f'],['Held',m.held,'#c6d2e0'],['Moved down',m.dn,'#e08b6a'],['Dropped out',m.drop,'#b03a2e']],T=parts.reduce((a,p)=>a+p[1],0)||1,W=900,x0=0,bw=W;let x=x0;
+  let s=`<svg class="chart" viewBox="0 0 ${W} 120" role="img" aria-label="Keyword movement">`;
+  parts.forEach(([lab,v,c])=>{if(!v)return;const w=v/T*bw;s+=`<rect x="${x}" y="8" width="${Math.max(w-2,1)}" height="34" rx="4" fill="${c}"><title>${lab}: ${v}</title></rect>`+(w>34?`<text x="${x+w/2}" y="30" text-anchor="middle" font-size="13" font-weight="800" fill="${c==='#c6d2e0'?'#46556a':'#fff'}">${v}</text>`:'');x+=w});
+  let lx=0;parts.forEach(([lab,v,c],i)=>{const cx=(i%3)*300,cy=66+Math.floor(i/3)*26;s+=`<rect x="${cx}" y="${cy}" width="11" height="11" rx="3" fill="${c}"/><text x="${cx+18}" y="${cy+10}" font-size="12.5" font-weight="600" fill="#46556a">${lab} · <tspan font-weight="800" fill="#0d1826">${v}</tspan></text>`});
+  return s+'</svg>';
+}
+function dumbbell(rows,lw=230){
+  const W=900,rh=30,top=24,h=top+rows.length*rh+6,x0=lw+16,bw=W-x0-70,X=v=>x0+v*bw;
+  let s=`<svg class="chart" viewBox="0 0 ${W} ${h}" role="img" aria-label="Local Pack coverage, baseline vs this week">`;
+  [0,.25,.5,.75,1].forEach(t=>s+=`<line class="gridline" x1="${X(t)}" x2="${X(t)}" y1="18" y2="${h-4}"/><text class="axis-txt" x="${X(t)}" y="13" text-anchor="middle">${t*100}%</text>`);
+  rows.forEach((r,i)=>{const y=top+i*rh+13,a=X(r.a),b=X(r.b),d=r.b-r.a,c=Math.abs(d)<1e-9?'#7d8b9d':d>0?'#0f7a52':'#b03a2e';
+    if(r.id)s+=`<rect class="hit" data-loc="${r.id}" x="0" y="${y-13}" width="${W}" height="${rh}" fill="transparent"><title>Open ${esc(r.label)}</title></rect>`;
+    s+=`<text class="pt-label" x="${lw}" y="${y+4}" text-anchor="end" fill="#0d1826" font-size="12">${esc(r.label)}</text>`+
+      `<line x1="${a}" x2="${b}" y1="${y}" y2="${y}" stroke="${c}" stroke-width="3" stroke-linecap="round"/>`+
+      `<circle cx="${a}" cy="${y}" r="5" fill="#fff" stroke="#7d8b9d" stroke-width="2"><title>${esc(r.label)} baseline: ${pc(r.a)}</title></circle>`+
+      `<circle cx="${b}" cy="${y}" r="6" fill="#1a56db" stroke="#fff" stroke-width="2"><title>${esc(r.label)} this week: ${pc(r.b)}</title></circle>`+
+      `<text x="${W-4}" y="${y+4}" text-anchor="end" font-size="11.5" font-weight="800" fill="${c}">${(d>=0?'+':'−')+Math.abs(d*100).toFixed(0)} pts</text>`});
+  return s+'</svg>';
+}
+function rTrends(ls){
+  const L=WEEKS.length-1,P=L-1,base=0,kAll=ls.flatMap(l=>l.kw),kLL=kAll.filter(WEEKS[base].has);
+  const st=WEEKS.map((w,i)=>wkStats(kLL,i)),now=st[L],wk=st[P],b0=st[base];
+  const same=P===base;
+  $('#h-tr').textContent=kLL.length?`Local Pack ${sgn(now.pack-wk.pack)} keywords this week${same?'':', '+sgn(now.pack-b0.pack)+' since the baseline'}`:'No locations match this filter';
+  $('#p-tr').textContent=`${scope()}, ${kLL.length} keywords tracked since the 3 October baseline, latest run ${WEEKS[L].full}. Week over week compares the latest run with the one before it; vs baseline compares it with 3 October.${same?' The run before this one is the baseline, so both comparisons match this week. They separate from the next weekly run.':''}`;
+  const T=[['In the Local Pack','pack',false,0,'keywords'],['Map rank 1–3','top3',false,0,'keywords'],['Map rank 1–10','top10',false,0,'keywords'],['Avg map rank','avg',true,1,'lower is better'],['Not in top 50','nr',true,0,'lower is better']];
+  $('#t-tr').innerHTML=T.map(([lab,k,lb,dig,u])=>`<div class="tr-tile"><div class="lab">${lab}</div><div class="val">${now[k]==null?'–':dig?now[k].toFixed(1):now[k]} <small>${u}</small></div><div class="dl2">${chip('WoW',now[k]==null||wk[k]==null?null:now[k]-wk[k],lb,dig)}${chip('vs baseline',now[k]==null||b0[k]==null?null:now[k]-b0[k],lb,dig)}</div></div>`).join('');
+  $('#n-tr-line').textContent=`Same ${kLL.length} keywords each week, one point per Rank Tracker run. A new point is added every week.`;
+  $('#ch-tr-line').innerHTML=T.map(([lab,k,lb,dig])=>{const r=smLine(st.map(x=>x[k]),{lowBetter:lb,dig,lab});return `<figure><figcaption>${lab}<span style="color:${r.col}">${sgn(r.d,dig)} vs baseline${lb?' · scale flipped, up is better':''}</span></figcaption>${r.svg}</figure>`}).join('');
+  const m=wkMove(kLL,P,L);
+  $('#n-tr-move').textContent=`Map position of each keyword, ${WEEKS[P].label} → ${WEEKS[L].label}. ${m.out} keyword${m.out===1?' sits':'s sit'} outside the top 50 on both dates and ${m.out===1?'is':'are'} left out.`;
+  $('#ch-tr-move').innerHTML=moveBar(m);
+  const bd=w=>{const d=[0,0,0,0,0];kLL.forEach(x=>d[band(WEEKS[w].lf(x))]++);return d};
+  legendBands('#lg-tr-mix');
+  $('#n-tr-mix').textContent='Share of keywords in each map rank band. More green and blue on the second bar means rankings moved up.';
+  $('#ch-tr-mix').innerHTML=stacked([{label:'3 Oct baseline',d:bd(base),t:kLL.length||1},{label:'This week',d:bd(L),t:kLL.length||1}],110);
+  const LL=l=>l.kw.filter(WEEKS[base].has);
+  const rows=ls.map(l=>{const k=LL(l),a=wkStats(k,P).pack,c=wkStats(k,L).pack;return {id:l.id,label:l.label,sub:S.client?l.name:l.client,prev:a,now:c,d:c-a}});
+  const ch=rows.filter(r=>r.d!==0).sort((x,y)=>y.d-x.d||x.label.localeCompare(y.label));
+  $('#n-tr-wow').textContent=`Change in Local Pack keywords, ${WEEKS[P].label} → ${WEEKS[L].label}. ${ch.length} of ${rows.length} locations changed; the other ${rows.length-ch.length} held steady. Select a location to open it.`;
+  $('#ch-tr-wow').innerHTML=ch.length?divBars(ch):'<p class="card-note">No location changed this week.</p>';
+  const byLoc=!!S.client;
+  $('#h-tr-base').textContent=byLoc?`Local Pack coverage vs baseline · ${S.client} locations`:'Local Pack coverage vs baseline · by client';
+  const dRows=byLoc?ls.map(l=>{const k=LL(l);return {id:l.id,label:l.label,a:k.length?wkStats(k,base).pack/k.length:0,b:k.length?wkStats(k,L).pack/k.length:0}}):clients.map(c=>{const k=DATA.filter(l=>l.client===c).flatMap(LL);return {label:c,a:k.length?wkStats(k,base).pack/k.length:0,b:k.length?wkStats(k,L).pack/k.length:0}});
+  dRows.sort((x,y)=>(y.b-y.a)-(x.b-x.a)||y.b-x.b);
+  $('#n-tr-base').textContent='Share of tracked keywords in the Local Pack. The line runs from the 3 October baseline (open dot) to this week (blue dot).';
+  $('#ch-tr-base').innerHTML=dumbbell(dRows);
+  document.querySelectorAll('#sec-trends .hit').forEach(r=>r.onclick=()=>goLoc(+r.dataset.loc));
+}
 function render(){
   const ls=sel();
   sbNums();
@@ -777,7 +907,7 @@ function render(){
   $('#m-locs').textContent=ls.length;
   document.querySelectorAll('#nav button').forEach(b=>b.setAttribute('aria-current',b.dataset.sec===S.sec));
   document.querySelectorAll('.content > section').forEach(s=>s.hidden=s.id!=='sec-'+S.sec);
-  ({overview:rOverview,all:rAll,location:rLocation,pack:rPack,map:rMap,grid:rGrid,citations:rCit,keywords:rKw,notes:()=>{}})[S.sec](ls);
+  ({overview:rOverview,trends:rTrends,all:rAll,location:rLocation,pack:rPack,map:rMap,grid:rGrid,citations:rCit,keywords:rKw,notes:()=>{}})[S.sec](ls);
 }
 document.querySelectorAll('#nav button').forEach(b=>b.onclick=()=>{S.sec=b.dataset.sec;try{localStorage.setItem('dra-lr-sec',S.sec)}catch(e){};render();window.scrollTo(0,0)});
 document.querySelectorAll('#seg-kw button').forEach(b=>b.onclick=()=>{S.kwf=b.dataset.f;render()});
@@ -832,7 +962,7 @@ render();
   pb.onclick=async()=>{
     const keep={sec:S.sec,grp:S.grp,kwf:S.kwf,scroll:window.scrollY};
     pb.disabled=true;
-    const secs=[['overview','Overview'],['all','All Locations'],['pack','Local Pack'],['map','Map Rankings'],['grid','Local Search Grid'],['citations','Citations'],['keywords','Keywords'],['notes','Reading This Data']];
+    const secs=[['overview','Overview'],['trends','Trends'],['all','All Locations'],['pack','Local Pack'],['map','Map Rankings'],['grid','Local Search Grid'],['citations','Citations'],['keywords','Keywords'],['notes','Reading This Data']];
     try{
       const {jsPDF}=window.jspdf;const pdf=new jsPDF({orientation:'landscape',unit:'pt',format:'letter'});
       const PW=pdf.internal.pageSize.getWidth(),PH=pdf.internal.pageSize.getHeight(),M=30,HB=46,CW=PW-2*M,CH=PH-HB-M;
