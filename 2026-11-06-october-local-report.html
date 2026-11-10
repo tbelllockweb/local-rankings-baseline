@@ -1,0 +1,232 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>October Local Report</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Markazi+Text:wght@500;600&family=Mulish:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+*,*::before,*::after{box-sizing:border-box}
+:root{color-scheme:light;--ground:#f4f7fa;--surface:#fff;--surface-2:#eef3f8;--ink:#0d1826;--ink-2:#46556a;--ink-3:#7d8b9d;--line:#dbe3ed;--line-2:#c6d2e0;--navy:#002145;--navy-2:#00335f;--blue:#1a56db;--green:#0f7a52;--red:#b03a2e;--f-display:"Markazi Text",Georgia,serif;--f-body:"Mulish","Helvetica Neue",Arial,sans-serif;--f-mono:"IBM Plex Mono",Consolas,monospace}
+body{margin:0;background:var(--ground);color:var(--ink);font:15.5px/1.6 var(--f-body);-webkit-font-smoothing:antialiased}
+a{color:var(--blue)}
+header{background:linear-gradient(112deg,var(--navy) 0%,var(--navy-2) 62%,#0a4a86 100%);color:#fff;padding:34px 16px 30px}
+.wrap{max-width:860px;margin:0 auto}
+.eyebrow{font-size:12px;font-weight:800;letter-spacing:.13em;text-transform:uppercase;color:#7fb0f5;margin:0 0 8px}
+h1{font-family:var(--f-display);font-weight:600;font-size:38px;line-height:1.1;margin:0;text-wrap:balance}
+.meta{margin-top:12px;font-family:var(--f-mono);font-size:12px;color:#b6cde8}
+.meta b{color:#fff;font-weight:500}
+.back{display:inline-block;margin-bottom:14px;color:#b6cde8;font-size:13px;text-decoration:none}
+.back:hover{color:#fff}
+main{padding:26px 16px 60px}
+section{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:22px 24px;margin-bottom:18px}
+h2{font-family:var(--f-display);font-weight:600;font-size:28px;line-height:1.15;margin:0 0 10px}
+h3{font-size:13px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--ink-2);margin:18px 0 8px}
+p{margin:0 0 12px;max-width:72ch}
+p.src{font-size:12.5px;color:var(--ink-3);font-style:italic;margin:12px 0 0}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin:14px 0 16px}
+.tile{border:1px solid var(--line);border-radius:9px;padding:14px 16px;position:relative;overflow:hidden}
+.tile::before{content:"";position:absolute;inset:0 auto 0 0;width:3px;background:var(--tc,var(--blue))}
+.tile .lab{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3)}
+.tile .val{font-size:28px;font-weight:800;letter-spacing:-.02em;line-height:1.15;margin-top:4px;font-variant-numeric:tabular-nums}
+.tile .sub{font-size:12px;color:var(--ink-2)}
+.tbl{overflow-x:auto;border:1px solid var(--line);border-radius:9px;margin:6px 0 12px}
+table{border-collapse:collapse;width:100%;font-size:13.5px}
+th,td{padding:9px 12px;text-align:right;border-bottom:1px solid var(--line);white-space:nowrap}
+th:first-child,td:first-child{text-align:left}
+td.l,th.l{text-align:left;white-space:normal}
+thead th{background:var(--surface-2);font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-2)}
+tbody td{font-variant-numeric:tabular-nums}
+tbody tr:last-child td{border-bottom:0}
+tr.total td{font-weight:800;background:var(--surface-2)}
+.up{color:var(--green);font-weight:700}.dn{color:var(--red);font-weight:700}
+ul{margin:0 0 12px;padding-left:20px}
+li{margin:0 0 6px;max-width:72ch}
+ul.check{list-style:none;padding-left:0}
+ul.check li{padding-left:28px;position:relative}
+ul.check li::before{content:"";position:absolute;left:0;top:4px;width:15px;height:15px;border:1.6px solid var(--line-2);border-radius:4px}
+.legend{display:flex;flex-wrap:wrap;gap:8px 18px;list-style:none;padding:0;margin:4px 0 8px}
+.legend li{display:inline-flex;align-items:center;gap:7px;font-size:12.5px;font-weight:600;color:var(--ink-2);margin:0}
+.legend .sw{width:11px;height:11px;border-radius:3px}
+.chart{width:100%;overflow-x:auto}
+.chart svg{display:block;width:100%;min-width:520px;height:auto;font-family:var(--f-body)}
+.ax{font-family:var(--f-mono);font-size:11px;fill:var(--ink-3)}
+footer{color:var(--ink-3);font-size:12px;text-align:center;padding-bottom:30px}
+@media (max-width:600px){h1{font-size:30px}section{padding:18px 16px}}
+@media print{body{background:#fff}section{break-inside:avoid;border-color:#ccc}header{-webkit-print-color-adjust:exact;print-color-adjust:exact}.back{display:none}}
+</style>
+</head>
+<body>
+<header>
+<div class="wrap">
+<a class="back" href="./">← All reports</a>
+<p class="eyebrow">Digital Reach · Monthly report</p>
+<h1>October Local Report: Addus Illinois Local Search Pilot</h1>
+<div class="meta">Prepared <b>4 Nov 2026</b> · Taylor Bell · Digital Reach Agency · Rank Tracker <b>3 to 26 Oct 2026</b> · 40 locations</div>
+</div>
+</header>
+<main>
+<div class="wrap">
+
+<section>
+<h2>Summary</h2>
+<div class="tiles">
+<div class="tile" style="--tc:#0f7a52"><div class="lab">In the Local Pack</div><div class="val">55 → 71</div><div class="sub">+16 (+29%) on 270 keywords</div></div>
+<div class="tile" style="--tc:#1a56db"><div class="lab">Map top 3</div><div class="val">58 → 84</div><div class="sub">+26 on the same keywords</div></div>
+<div class="tile" style="--tc:#7d8b9d"><div class="lab">All 277 keywords now</div><div class="val">26.4%</div><div class="sub">in pack (73) · 31.4% map top 3 (87)</div></div>
+</div>
+<p>Your 40 tracked locations ended October in the Local Pack for 71 of the 270 keywords tracked since the 3 October baseline, up from 55 (+16, or +29%). Map top-3 placements on the same keywords rose from 58 to 84 (+26). Across all 277 keywords now tracked, locations appear in the Local Pack for 73 (26.4%) and rank in the map top 3 for 87 (31.4%).</p>
+<p>The direction is positive, but this is one month of data and the weekly line is noisy. Most of the gain sits in smaller-market branches, Arcadia and the Illinois benchmark group. The 16 Illinois page-build branches held steady in the Local Pack (36 to 35) while gaining map top-3 placements (35 to 43). That is expected at this stage: the first service-area page (Peoria) went live on 26 October, the same day as the last October run, so none of October's movement can be credited to the pages yet.</p>
+<p class="src">Source: BrightLocal Rank Tracker, runs of 3, 12, 19 and 26 October 2026, Google US, search depth 50. Changes compare the same keyword at the same location on both dates.</p>
+</section>
+
+<section>
+<h2>Trend since the 3 October baseline</h2>
+<ul class="legend"><li><span class="sw" style="background:#1a56db"></span>Map top 3</li><li><span class="sw" style="background:#0f7a52"></span>In the Local Pack</li></ul>
+<div class="chart" role="img" aria-label="Weekly keywords in the map top 3: 58, 84, 68, 84. Weekly keywords in the Local Pack: 55, 89, 60, 71.">
+<svg viewBox="0 0 720 260">
+<g stroke="#dbe3ed"><line x1="50" x2="700" y1="210" y2="210"/><line x1="50" x2="700" y1="160" y2="160"/><line x1="50" x2="700" y1="110" y2="110"/><line x1="50" x2="700" y1="60" y2="60"/><line x1="50" x2="700" y1="10" y2="10"/></g>
+<g class="ax" text-anchor="end"><text x="42" y="214">40</text><text x="42" y="164">55</text><text x="42" y="114">70</text><text x="42" y="64">85</text><text x="42" y="14">100</text></g>
+<g class="ax" text-anchor="middle"><text x="90" y="238">3 Oct (baseline)</text><text x="290" y="238">12 Oct</text><text x="490" y="238">19 Oct</text><text x="670" y="238">26 Oct</text></g>
+<polyline fill="none" stroke="#1a56db" stroke-width="2.5" points="90,150 290,63.3 490,116.7 670,63.3"/>
+<polyline fill="none" stroke="#0f7a52" stroke-width="2.5" points="90,160 290,46.7 490,143.3 670,106.7"/>
+<g fill="#fff" stroke-width="2.5"><circle cx="90" cy="150" r="4.5" stroke="#1a56db"/><circle cx="290" cy="63.3" r="4.5" stroke="#1a56db"/><circle cx="490" cy="116.7" r="4.5" stroke="#1a56db"/><circle cx="670" cy="63.3" r="6" fill="#1a56db" stroke="#1a56db"/><circle cx="90" cy="160" r="4.5" stroke="#0f7a52"/><circle cx="290" cy="46.7" r="4.5" stroke="#0f7a52"/><circle cx="490" cy="143.3" r="4.5" stroke="#0f7a52"/><circle cx="670" cy="106.7" r="6" fill="#0f7a52" stroke="#0f7a52"/></g>
+<g font-size="12" font-weight="700"><text x="90" y="139" fill="#1a56db" text-anchor="middle">58</text><text x="290" y="52" fill="#1a56db" text-anchor="middle">84</text><text x="490" y="105" fill="#1a56db" text-anchor="middle">68</text><text x="670" y="52" fill="#1a56db" text-anchor="middle">84</text><text x="90" y="180" fill="#0f7a52" text-anchor="middle">55</text><text x="290" y="35" fill="#0f7a52" text-anchor="middle">89</text><text x="490" y="163" fill="#0f7a52" text-anchor="middle">60</text><text x="670" y="126" fill="#0f7a52" text-anchor="middle">71</text></g>
+</svg>
+</div>
+<p>Both measures finished October above the baseline. The 12 October high and 19 October dip line up with Google's anti-scraping changes, so the November report compares the first and last runs rather than any single week.</p>
+<p class="src">BrightLocal Rank Tracker, Google US, weekly runs 3 to 26 October 2026 · 270 keywords tracked since the baseline.</p>
+</section>
+
+<section>
+<h2>By brand</h2>
+<p>Addus and Arcadia drove October's gain; JourneyCare and the Ohio hospice brands held their already strong positions.</p>
+<div class="tbl"><table>
+<thead><tr><th>Brand</th><th>Locations</th><th>Keywords compared</th><th>Local Pack, 3 Oct</th><th>Local Pack, 26 Oct</th><th>Map top 3, 3 Oct</th><th>Map top 3, 26 Oct</th></tr></thead>
+<tbody>
+<tr><td>Addus HomeCare</td><td>17</td><td>134</td><td>29</td><td>38</td><td>29</td><td>42</td></tr>
+<tr><td>Arcadia Home Care</td><td>13</td><td>73</td><td>2</td><td>10</td><td>1</td><td>11</td></tr>
+<tr><td>JourneyCare</td><td>6</td><td>51</td><td>18</td><td>17</td><td>20</td><td>22</td></tr>
+<tr><td>Queen City Hospice</td><td>2</td><td>6</td><td>5</td><td>4</td><td>6</td><td>6</td></tr>
+<tr><td>Miracle City Hospice</td><td>1</td><td>3</td><td>1</td><td>2</td><td>2</td><td>3</td></tr>
+<tr><td>LifeStyle Options</td><td>1</td><td>3</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
+<tr class="total"><td>All locations</td><td>40</td><td>270</td><td>55</td><td>71</td><td>58</td><td>84</td></tr>
+</tbody></table></div>
+<p>Addus still splits by market size. Quincy now appears in the Local Pack for all 9 tracked keywords, and Litchfield and Mt. Vernon for 7 of 8 each, while Chicago (95th St), Rockford, Springfield, Marion and Niles appear for none. LifeStyle Options Schaumburg appears in the pack only for a branded keyword added after the baseline, so it is not counted in this comparison.</p>
+<p class="src">Source: BrightLocal Rank Tracker, 3 and 26 October 2026. Keywords added after 3 October are excluded so both dates compare the same set.</p>
+</section>
+
+<section>
+<h2>Pilot branches vs benchmark branches</h2>
+<p>The Illinois benchmark branches gained more in October than the page-build branches, so the pilot's own work does not show in the numbers yet.</p>
+<div class="tbl"><table>
+<thead><tr><th>Group</th><th>Locations</th><th>Keywords compared</th><th>Local Pack, 3 Oct</th><th>Local Pack, 26 Oct</th><th>Map top 3, 3 Oct</th><th>Map top 3, 26 Oct</th></tr></thead>
+<tbody>
+<tr><td>Illinois page-build branches</td><td>16</td><td>122</td><td>36</td><td>35</td><td>35</td><td>43</td></tr>
+<tr><td>Illinois benchmark branches</td><td>6</td><td>48</td><td>10</td><td>19</td><td>12</td><td>19</td></tr>
+<tr><td>Out-of-state benchmark (Addus account)</td><td>5</td><td>27</td><td>7</td><td>7</td><td>10</td><td>11</td></tr>
+<tr><td>Arcadia (continued tracking)</td><td>13</td><td>73</td><td>2</td><td>10</td><td>1</td><td>11</td></tr>
+</tbody></table></div>
+<p>Two things explain most of this. The benchmark group is small (48 keywords) and sits in smaller towns, where one branch can move several keywords at once; Mt. Vernon alone went from 1 to 7. And the pilot's levers had barely started: one page live on 26 October, listing fixes still in review, and no listings re-pointed to location pages yet. The fair test of the page-build group starts once pages are live and linked from each profile.</p>
+</section>
+
+<section>
+<h2>Locations</h2>
+<p>Mt. Vernon had the biggest gain of the month; Barrington hospice and Charleston gave back the most, though both still rank in the map top 3 for most of their keywords.</p>
+<div class="tbl"><table>
+<thead><tr><th>Location</th><th class="l">Brand</th><th class="l">Group</th><th>Local Pack, 3 Oct</th><th>Local Pack, 26 Oct</th><th>Change</th></tr></thead>
+<tbody>
+<tr><td>Mt. Vernon, IL</td><td class="l">Addus</td><td class="l">IL benchmark</td><td>1 of 8</td><td>7 of 8</td><td class="up">+6</td></tr>
+<tr><td>Swansea, IL</td><td class="l">Addus</td><td class="l">IL benchmark</td><td>0 of 8</td><td>3 of 8</td><td class="up">+3</td></tr>
+<tr><td>Palos Heights, IL (hospice)</td><td class="l">JourneyCare</td><td class="l">IL page build</td><td>2 of 9</td><td>5 of 9</td><td class="up">+3</td></tr>
+<tr><td>Monterey, CA</td><td class="l">Arcadia</td><td class="l">Continued tracking</td><td>1 of 8</td><td>4 of 8</td><td class="up">+3</td></tr>
+<tr><td>Quincy, IL</td><td class="l">Addus</td><td class="l">IL page build</td><td>7 of 9</td><td>9 of 9</td><td class="up">+2</td></tr>
+<tr><td>East Peoria, IL</td><td class="l">Addus</td><td class="l">IL page build</td><td>0 of 9</td><td>2 of 9</td><td class="up">+2</td></tr>
+<tr><td>Charleston, IL</td><td class="l">Addus</td><td class="l">IL page build</td><td>7 of 8</td><td>4 of 8</td><td class="dn">−3</td></tr>
+<tr><td>Barrington, IL (hospice)</td><td class="l">JourneyCare</td><td class="l">IL page build</td><td>9 of 9</td><td>5 of 9</td><td class="dn">−4</td></tr>
+</tbody></table></div>
+<p>These Illinois profiles are still not in the Local Pack for any tracked keyword: Chicago (95th St), Niles, Rockford and Marion, Springfield and Decatur in the benchmark group, and both JourneyCare home health profiles (Barrington and Palos Heights). Warrenville appears for 1 of 9. Chicago moved up 12 map places on average but still averages position 13. The two home health profiles share problems found in the 6 October audit: Barrington uses the hospice phone number, and Palos Heights has no reviews and links to addus.com instead of journeycare.org.</p>
+<p class="src">Source: BrightLocal Rank Tracker, 3 and 26 October 2026; listing issues from the DRA local SEO audit, 6 October 2026.</p>
+</section>
+
+<section>
+<h2>What was done in October</h2>
+<p>October set the measurement baseline, scored every listing, and put the first service-area page live.</p>
+<div class="tbl"><table>
+<thead><tr><th>Date</th><th class="l">Work</th><th class="l">Status</th></tr></thead>
+<tbody>
+<tr><td>30 Oct</td><td class="l">Niles and Quincy page questions sent (licensing, payers, ZIP lists, phone numbers)</td><td class="l">Waiting on Addus</td></tr>
+<tr><td>26 Oct</td><td class="l"><a href="https://addus.com/locations/peoria-il-home-care/">Peoria service-area page</a> published</td><td class="l">Live; layout changes limited by CMS access</td></tr>
+<tr><td>23 Oct</td><td class="l">Weekly reporting moved to Friday pulls; manual checks added for the Google anti-scraping issue</td><td class="l">Done</td></tr>
+<tr><td>15 Oct</td><td class="l">Crystal Lake hospice page (JourneyCare) draft sent</td><td class="l">Waiting on feedback</td></tr>
+<tr><td>13 Oct</td><td class="l">Peoria page rewritten to a 6th to 8th grade reading level (Flesch-Kincaid 11.8 to 6.0)</td><td class="l">Done</td></tr>
+<tr><td>6 Oct</td><td class="l">40-location local SEO audit scored (average 4.39 of 10)</td><td class="l">Done</td></tr>
+<tr><td>6 Oct</td><td class="l">Google profile description and review response templates sent</td><td class="l">Waiting on approval</td></tr>
+<tr><td>6 Oct</td><td class="l">Disconnected Facebook links listed (Barrington hospice, Deerfield hospice, Schaumburg)</td><td class="l">Relink with Addus</td></tr>
+<tr><td>3 to 5 Oct</td><td class="l">BrightLocal baseline: 40 locations, 270 keywords, local search grid, citations</td><td class="l">Done</td></tr>
+</tbody></table></div>
+<p>Citation scores held steady at an average of 37 out of 100. Facebook is the most common gap: BrightLocal does not find a Facebook listing for 34 of the 40 locations.</p>
+<p class="src">Sources: DRA call recaps 6, 23 and 30 October; Peoria page email 26 October; BrightLocal Citation Tracker, 20 and 27 October 2026.</p>
+</section>
+
+<section>
+<h2>Reading this data</h2>
+<p>Read the start-to-finish change, not any single week.</p>
+<ul>
+<li><strong>Google anti-scraping.</strong> Since mid-September Google has served some rank trackers altered results pages. BrightLocal reports Rank Tracker is affected, with Local Pack and map results hit less than organic, and positions 10 and below least reliable. This likely explains the 12 October high and the 19 October dip.</li>
+<li><strong>Baseline timing.</strong> The 3 October baseline ran during Google's September spam update, so part of October's rise may be recovery rather than new gains.</li>
+<li><strong>Local search grid not re-run.</strong> The latest grid scans are from 2 October. The November report will include a fresh grid run as a second, unaffected check.</li>
+<li><strong>Keyword sets differ by location.</strong> Locations track 3 to 11 keywords each, so compare locations on share and change rather than raw counts.</li>
+<li><strong>A separate pilot metric.</strong> The proposal's target (10.4% of 231 location and keyword pairs on page 1 of Google Places, rising to 28% to 40%) is a different test. It will be re-run on 17 November and reported on its own, not mixed with these figures.</li>
+<li><strong>Not yet in this report.</strong> The 2 November run, review counts and ratings since the baseline, and the review pilot's first-month numbers.</li>
+</ul>
+</section>
+
+<section>
+<h2>November recommendations</h2>
+<p>The fastest wins in November are listing fixes Addus can make in Yext and pointing the Peoria profile at its new page.</p>
+<h3>Listings (Addus in Yext, DRA to confirm on the live profiles)</h3>
+<ul class="check">
+<li>Point the East Peoria Google profile to the new Peoria page instead of the addus.com homepage. This is the pilot's first page and listing pairing to measure.</li>
+<li>Give Barrington home health its own phone number; it currently shares the hospice line.</li>
+<li>Change Palos Heights home health's website to journeycare.org and its Facebook link to JourneyCare's page.</li>
+<li>Set the primary category to Hospice on Barrington and Deerfield hospice, and remove "Corporate office" from Palos Heights hospice.</li>
+<li>Relink Facebook in Yext. One relink may restore all three pilot pages and up to 42 others across the account.</li>
+<li>Approve the profile description and review response templates sent 6 October so they can roll out.</li>
+</ul>
+<h3>Reviews</h3>
+<ul class="check">
+<li>Edit the six older owner responses on Barrington and Palos Heights hospice that confirm a family member's care (DRA).</li>
+<li>Share the review pilot's first-month numbers so the November report can show reviews beside rankings (Addus).</li>
+</ul>
+<h3>Pages</h3>
+<ul class="check">
+<li>Answer the Niles and Quincy questions from 30 October so both pages can be finalized (Addus).</li>
+<li>Send Crystal Lake hospice feedback so the first JourneyCare page can be built (Addus).</li>
+</ul>
+<h3>Reporting</h3>
+<ul class="check">
+<li>Run a fresh local search grid scan before the November comparison (DRA).</li>
+<li>Add review count and rating change per location to the monthly view (DRA).</li>
+</ul>
+<p>The Chicago metro needs sustained effort beyond November. Chicago (95th St) has 91 reviews at 2.3 stars with 58 negative reviews unanswered as of 29 September, and it does not reach the Local Pack for any tracked keyword.</p>
+</section>
+
+<section>
+<h2>Sources</h2>
+<ul>
+<li>BrightLocal Rank Tracker, Google US, depth 50: runs of 3, 12, 19 and 26 October 2026, via the <a href="./">weekly local rankings dashboards</a> (<a href="2026-10-05-local-pack-map-rankings.html">baseline</a>, <a href="2026-10-30-local-pack-map-rankings.html">week of 26 October</a>)</li>
+<li>BrightLocal Citation Tracker, 20 and 27 October 2026; Local Search Grid, 2 October 2026</li>
+<li>Google Business Profile live pull, 29 September 2026 (reviews, phones, links, categories)</li>
+<li>DRA local SEO audit (40 locations), 6 October 2026</li>
+<li>DRA call recaps, 6, 23 and 30 October 2026</li>
+<li>BrightLocal blog: <a href="https://www.brightlocal.com/blog/googles-anti-scraping-poison-serp/">Google's anti-scraping measures</a></li>
+</ul>
+</section>
+
+</div>
+</main>
+<footer>Digital Reach Agency · October 2026 monthly local report</footer>
+</body>
+</html>
